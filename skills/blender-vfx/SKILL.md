@@ -49,6 +49,7 @@ Ask in rounds of at most 4 questions, each with options to pick from. Use a ques
 | A common effect (saber, explosion, creature, sky swap, removal...) | `recipes/README.md`, then one recipe |
 | Learning links, where a method came from | `references/video-index.md` |
 | Folder layout, cleaning up a messy project | `references/15-project-structure.md` |
+| Hard footage: COLMAP, OpenCV, AI point tracking, AI masks, depth | `references/16-optional-engines.md` |
 
 Read one stage file, do the work, move on. Do not preload the whole folder.
 
@@ -82,6 +83,7 @@ Follow the layout in `references/15-project-structure.md` (numbered folders: `00
 - `setup_shot.py`: folders, units, fps, camera sensor and focal length, colour view, Cycles defaults per hardware tier, EXR output and passes, versioned save.
 - `contact_sheet.py`: renders chosen frames cheaply and tiles them into one image, restoring all settings.
 - `verify_output.py` (plain Python with ffmpeg): frame count, gaps, black frames, flicker spikes.
+- `track_report.py`: solve error, median and 95th percentile track error, tracks per frame, 3x3 spread, lifespans, flags.
 - `tidy_project.py` (plain Python): finds root clutter, temp files, script copies and byte-identical duplicates; deletes only with explicit flags.
 
 ## Learning loop
@@ -94,6 +96,9 @@ After each finished shot, add 1 to 3 lines to `lessons.md` (template in `templat
 - Live MCP edits only in the scene the user asked about. Long renders and batch jobs run headless (`blender -b file.blend -P script.py`) on a saved copy.
 - Restore any render settings a tool changed for a preview.
 - Measure evaluated geometry (after modifiers), never raw mesh data.
+- A tool saying "success" is not proof. After any render or bake, check the files exist, the frame count is right and the images open. Report each job as: job id, expected frames, frames found, output path, warnings.
+- Prefer the data API (`bpy.data`) over operators; when an operator needs a context, use `bpy.context.temp_override()`.
+- Save a new version of the .blend before any risky step, so a crash or a bad change can be rolled back.
 
 ## Token budget
 

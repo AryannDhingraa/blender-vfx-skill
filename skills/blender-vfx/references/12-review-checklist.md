@@ -11,6 +11,14 @@
 
 Open every render before describing it. Never report an image you have not looked at.
 
+## Three gates, in this order
+
+1. **Technical** (measured): solve report flags, frame count, black or missing frames, flicker spikes, noise. A technical failure blocks the shot whatever it looks like.
+2. **Visual** (the agent looks): the checklist below, on a contact sheet next to the plate and the previous version. Name each problem and the one setting that fixes it.
+3. **Human**: the user approves. The agent never approves its own final.
+
+Compare every revision with the previous one, so fixing the lighting cannot quietly break the track or the comp. Stop after 3 fix rounds on the same problem and ask the user.
+
 ## Shot checklist
 
 - [ ] Track holds on every frame, no sliding at contact points

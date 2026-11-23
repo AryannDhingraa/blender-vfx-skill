@@ -14,6 +14,32 @@ Track every moving shot first, so CG sticks to the ground. All of this happens i
 
 Stop and ask the user after two failed solves. Options: retrack with different markers, 2D track instead, or reshoot.
 
+## Classify the shot first
+
+| Shot type | Solve |
+| --- | --- |
+| Locked off | No solve; 2D only |
+| Pan or tilt on a tripod (no position change) | Tripod solve. Depth cannot be recovered from rotation alone |
+| Handheld, walking, drone, vehicle (real parallax) | Full camera solve |
+| Zoom during the shot | Avoid. If unavoidable, solve focal length per frame only after a clean fixed-lens attempt fails |
+| Heavy rolling shutter or motion blur | Track the slower sections, add more markers, match rolling shutter in render |
+
+Never stabilise the plate before tracking unless you keep the stabilisation transform and apply it back to the render.
+
+## Check the solve, not just the number
+
+Run `scripts/track_report.py` after every solve. It reports median and 95th percentile track error, tracks per frame, spread over a 3x3 image grid and track lifespans, with flags.
+
+- A low average error alone does not prove a good solve. A solve can score well and still have the wrong depth or a bent floor.
+- Holdout check: before solving, set aside 2 or 3 good tracks (mute them), solve, then unmute and check their error. High error on tracks the solver never saw means the camera is wrong.
+- Forward-backward check: track a marker forwards, then backwards from its last frame. If the two paths disagree by more than about 1 px, delete it.
+- 200 good, well spread markers beat 2000 weak ones. Replace lost markers as the camera moves.
+- Visual check: put a few small cubes on the ground plane and a wall, render the contact sheet, and look for sliding.
+
+## Lens calibration (optional, for zooms and wide lenses)
+
+Film a printed checkerboard at the exact focal length, filling the frame at several angles. Calibrate with OpenCV (or Blender's distortion solve) and record the distortion values in `vfx-profile.md`. Reuse them for every shot at that focal length.
+
 ## Rebuild the set
 
 - Model rough proxy geometry: ground, walls, rocks, trees. Use it for collisions, shadow catching and holdouts.

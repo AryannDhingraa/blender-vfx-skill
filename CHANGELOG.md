@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.0 (2026-11-24)
+- track_report.py: solve trust report (median and 95th percentile error, tracks per frame, image spread, lifespans, flags).
+- Tracking guide: shot classification, holdout and forward-backward checks, lens calibration.
+- Review: technical, visual and human gates; compare every revision with the previous one.
+- Execution rules: verify outputs after every job, checkpoints before risky steps.
+- Optional engines guide (COLMAP, OpenCV, AI point tracking, AI masks, depth) with licence and hardware notes.
+- New README with breakdown and before/after media.
+
 ## 1.2.0 (2026-11-24)
 - Standard project layout and file hygiene rules; setup_shot.py creates it, contact_sheet.py writes to _review/ and replaces the old sheet.
 - tidy_project.py: finds root clutter, temp files, copied scripts and byte-identical duplicates; deletes only with explicit flags.
