@@ -11,6 +11,10 @@ Built for indie filmmakers, YouTubers and students who shoot their own plates an
 - **Covers the whole shot.** Shooting the plate, log footage and colour round trips, camera tracking, assets, animation, simulation, lighting to match, render passes, compositing, grading, 16:9 and 9:16 delivery, festival masters, asset licences.
 - **Adapts to your gear.** Settings for Apple Silicon, NVIDIA RTX, low-VRAM GTX cards and CPU-only machines, plus a two-machine render setup with Flamenco.
 - **Saves tokens.** A short `SKILL.md` that loads one stage guide at a time, a compact scene probe instead of scene dumps, a running shot log instead of re-inspection, low-resolution checkpoints instead of constant screenshots.
+- **Makes renders faster.** A read-only render doctor ranks what slows a scene down and marks which fixes risk quality, plus a guide to tuning Blender and the computer itself (macOS, Windows, Linux).
+- **Ready-made recipes.** Ten short plans for common shots: muzzle flashes, energy blades, creatures, explosions, splits and destruction, sky swaps and day for night, removals, set extensions, flybys, water interaction.
+- **Drives DaVinci Resolve too.** Routes for Studio and for the Free edition (Lua bridge), with rules for safe automation.
+- **Learns your habits.** A `lessons.md` file collects what worked on your shots, so the agent plans better each time without retraining.
 - **Checks its own work.** Contact sheets, a shot checklist, acceptance checks with numbers, and a script that finds missing, black or flickering frames.
 
 ## The pipeline
@@ -72,10 +76,18 @@ skills/blender-vfx/
     10-finishing-delivery.md  grade, sound, 16:9 and 9:16, masters, licences
     11-hardware.md            tiers, speedups, memory, Flamenco
     12-review-checklist.md    review loop and shot checklist
-  templates/                  vfx-profile.md, shot-log.md, asset-licenses.md
+    13-resolve-automation.md  Resolve Studio and Free routes, safe automation
+    14-render-speed.md        faster renders without quality loss, computer tuning
+    video-index.md            learning links
+  recipes/                    10 plans for common effects
+  templates/                  vfx-profile.md, shot-log.md, asset-licenses.md, lessons.md
   scripts/
     probe_scene.py            compact JSON scene summary (run inside Blender)
+    render_doctor.py          read-only render speed check with ranked fixes
+    setup_shot.py             folders, camera, colour, Cycles tier defaults, versioned save
+    contact_sheet.py          cheap preview frames tiled into one image
     verify_output.py          frame count, gaps, black frames, flicker spikes
+evals/evals.json              test prompts to check changes to the skill
 ```
 
 ## How it differs from other Blender skills
@@ -101,6 +113,16 @@ The workflow follows the methods shown in [ErikDoesVFX](https://www.youtube.com/
 - Ocean-scale water and city-scale explosions need Houdini-class tools or stock elements. The skill says so instead of faking it.
 - Settings are starting points. Your first real shot will show what to tune; open an issue with what you changed.
 - The agent can only drive apps it has a connection to. Some free editions block automation (recent DaVinci Resolve Free versions removed external Python scripting).
+
+## Making it better
+
+Agents are not retrained by a skill; they get better from better instructions and evidence. Ways to help:
+
+- **Lessons:** share anonymised lines from your `lessons.md` in an issue.
+- **Camera notes:** bit depth, crop modes, stabilisation and lens quirks for your exact camera model.
+- **Recipes:** a new effect plan, kept short, with checks.
+- **Hardware results:** before and after render times with the settings you changed.
+- **Evals:** add a case to `evals/evals.json` for any behaviour you want guaranteed, and run the cases before opening a pull request.
 
 ## Contributing
 

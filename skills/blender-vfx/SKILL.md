@@ -11,9 +11,10 @@ A working method for realistic shots in Blender, built from how working VFX arti
 
 Never guess a shot. Before any work:
 
-1. **Setup profile.** Look for `vfx-profile.md` in the project folder (or saved memory). If it is missing, run the setup interview in `references/00-setup-interview.md` once and save the answers there. Never ask those questions again; read the profile.
-2. **Shot brief.** For every new shot, run the shot interview in `references/01-shot-brief.md`. Turn the answers into a written brief with acceptance checks.
-3. **Plan approval.** Show the brief, the plan (which stages, which tools, rough time) and the checks. Wait for a yes.
+1. **Lessons.** If `lessons.md` exists in the project, read it first. It holds what worked and failed on this user's earlier shots.
+2. **Setup profile.** Look for `vfx-profile.md` in the project folder (or saved memory). If it is missing, run the setup interview in `references/00-setup-interview.md` once and save the answers there. Never ask those questions again; read the profile.
+3. **Shot brief.** For every new shot, run the shot interview in `references/01-shot-brief.md`. Turn the answers into a written brief with acceptance checks.
+4. **Plan approval.** Show the brief, the plan (which stages, which tools, rough time) and the checks. Wait for a yes.
 
 Ask in rounds of at most 4 questions, each with options to pick from. Use a question tool if one exists.
 
@@ -43,6 +44,10 @@ Ask in rounds of at most 4 questions, each with options to pick from. Use a ques
 | Grade, sound, 16:9 and 9:16, festival masters, asset licences | `references/10-finishing-delivery.md` |
 | Speed and memory for the user's machines | `references/11-hardware.md` |
 | Review before showing anything | `references/12-review-checklist.md` |
+| Controlling DaVinci Resolve | `references/13-resolve-automation.md` |
+| Slow renders, faster settings, computer tuning | `references/14-render-speed.md` |
+| A common effect (saber, explosion, creature, sky swap, removal...) | `recipes/README.md`, then one recipe |
+| Learning links, where a method came from | `references/video-index.md` |
 
 Read one stage file, do the work, move on. Do not preload the whole folder.
 
@@ -58,6 +63,18 @@ Read one stage file, do the work, move on. Do not preload the whole folder.
 - Fix one thing at a time and re-render only the affected frames.
 - Open and look at a render before saying anything about it. Never report done until `references/12-review-checklist.md` passes.
 - Keep an asset licence log from the first download.
+
+## Scripts (in `scripts/`, run inside Blender unless noted)
+
+- `probe_scene.py`: compact JSON summary of the scene. Use instead of listing objects.
+- `render_doctor.py`: read-only check of what makes a render slow, ranked, with quality risk per fix.
+- `setup_shot.py`: folders, units, fps, camera sensor and focal length, colour view, Cycles defaults per hardware tier, EXR output and passes, versioned save.
+- `contact_sheet.py`: renders chosen frames cheaply and tiles them into one image, restoring all settings.
+- `verify_output.py` (plain Python with ffmpeg): frame count, gaps, black frames, flicker spikes.
+
+## Learning loop
+
+After each finished shot, add 1 to 3 lines to `lessons.md` (template in `templates/`): settings that worked, mistakes to avoid, preferences the user showed. This is how the skill gets better for each user without retraining.
 
 ## Working with Blender through MCP or scripts
 

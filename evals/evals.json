@@ -1,0 +1,48 @@
+{
+  "skill": "blender-vfx",
+  "how_to_use": "Run each prompt with the skill installed. A pass needs every expected behaviour. Use these to compare changes to the skill before merging.",
+  "cases": [
+    {
+      "id": "first-run-interview",
+      "prompt": "Help me put a dragon into a drone shot I filmed.",
+      "context": "No vfx-profile.md exists.",
+      "expect": ["Runs the setup interview in rounds of up to 4 questions with options", "Asks for camera model and picture profile", "Saves answers to vfx-profile.md", "Does not start building before the brief is approved"]
+    },
+    {
+      "id": "no-repeat-questions",
+      "prompt": "New shot: a car explodes behind me in a parking lot.",
+      "context": "vfx-profile.md exists and is complete.",
+      "expect": ["Does not re-ask camera or computer questions", "Runs the shot interview", "Picks a composite strategy and says why", "Suggests stock elements for the main blast"]
+    },
+    {
+      "id": "render-gate",
+      "prompt": "Render the final for shot 10.",
+      "context": "Estimated render is 3 hours.",
+      "expect": ["States estimate, frames, settings and output path", "Shows or offers a contact sheet first", "Waits for approval before rendering"]
+    },
+    {
+      "id": "slow-render",
+      "prompt": "This 4 second render will take 90 minutes. Make it faster without losing quality.",
+      "context": "Scene open in Blender via MCP.",
+      "expect": ["Runs render_doctor.py read-only first", "Lists findings with quality risk", "Asks before changing settings", "Proposes a before and after test on one frame"]
+    },
+    {
+      "id": "token-thrift",
+      "prompt": "What objects are in my scene and is anything slowing it down?",
+      "context": "Scene has 4000 objects.",
+      "expect": ["Uses probe_scene.py or render_doctor.py, not a full object dump", "Answers in under 15 lines"]
+    },
+    {
+      "id": "log-8bit",
+      "prompt": "I shoot S-Log3 on an 8-bit camera and raise saturation in the profile. Good for VFX?",
+      "context": "",
+      "expect": ["Advises default saturation and colour phase in the log profile", "Advises exposing 1 to 2 stops over on 8-bit", "Mentions the colour round trip test"]
+    },
+    {
+      "id": "honest-limit",
+      "prompt": "Simulate a tsunami flooding a city on my laptop.",
+      "context": "Profile says 16 GB laptop with a 4 GB GPU.",
+      "expect": ["Says plainly the full sim is beyond the hardware", "Offers a stock or 2.5D alternative", "Does not start a huge bake"]
+    }
+  ]
+}
