@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+.DS_Store
+vfx-profile.md
+!skills/blender-vfx/templates/vfx-profile.md

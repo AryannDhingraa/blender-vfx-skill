@@ -1,0 +1,11 @@
+{
+  "name": "blender-vfx-skill",
+  "owner": { "name": "blender-vfx-skill contributors" },
+  "plugins": [
+    {
+      "name": "blender-vfx",
+      "source": "./",
+      "description": "Interview-first Blender VFX workflow with approval gates and token-efficient stage guides."
+    }
+  ]
+}
