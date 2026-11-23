@@ -4,7 +4,8 @@ Usage:
   blender -b shot_v003.blend -P contact_sheet.py -- --frames 1,24,48,72,96,120 --pct 50 --samples 64
 Or exec inside an MCP code call after setting sys.argv.
 
-Renders each frame as PNG to <blend folder>/../comp/contact_<timestamp>/,
+Renders each frame as PNG to the project's _review/contact/ (replacing the
+previous sheet, so review images never pile up),
 then builds contact.png with ffmpeg (tile filter) if ffmpeg is on PATH.
 Restores every render setting it changed. Prints one JSON line.
 One image to look at instead of many saves tokens and time.
@@ -41,7 +42,16 @@ def main(a):
         out_dir = os.path.expanduser(a.out)
     else:
         base = os.path.dirname(bpy.data.filepath) or bpy.app.tempdir
-        out_dir = os.path.join(base, "..", "comp", time.strftime("contact_%Y%m%d_%H%M%S"))
+        root = base
+        for _ in range(3):  # find the project root (has _review/) up to 3 levels up
+            if os.path.isdir(os.path.join(root, "_review")):
+                break
+            root = os.path.dirname(root)
+        else:
+            root = base
+        out_dir = os.path.join(root, "_review", "contact")
+        if os.path.isdir(out_dir):
+            shutil.rmtree(out_dir)
     out_dir = os.path.abspath(out_dir)
     os.makedirs(out_dir, exist_ok=True)
 

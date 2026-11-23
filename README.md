@@ -15,6 +15,7 @@ Built for indie filmmakers, YouTubers and students who shoot their own plates an
 - **Ready-made recipes.** Ten short plans for common shots: muzzle flashes, energy blades, creatures, explosions, splits and destruction, sky swaps and day for night, removals, set extensions, flybys, water interaction.
 - **Drives DaVinci Resolve too.** Routes for Studio and for the Free edition (Lua bridge), with rules for safe automation.
 - **Learns your habits.** A `lessons.md` file collects what worked on your shots, so the agent plans better each time without retraining.
+- **Keeps your folders clean.** A standard project layout a person can read at a glance, rules that stop the agent scattering scripts, temp files and debug frames, and a tidy script that finds clutter and byte-identical duplicates.
 - **Checks its own work.** Contact sheets, a shot checklist, acceptance checks with numbers, and a script that finds missing, black or flickering frames.
 
 ## The pipeline
@@ -78,6 +79,7 @@ skills/blender-vfx/
     12-review-checklist.md    review loop and shot checklist
     13-resolve-automation.md  Resolve Studio and Free routes, safe automation
     14-render-speed.md        faster renders without quality loss, computer tuning
+    15-project-structure.md   folder layout and file hygiene rules
     video-index.md            learning links
   recipes/                    10 plans for common effects
   templates/                  vfx-profile.md, shot-log.md, asset-licenses.md, lessons.md
@@ -87,7 +89,17 @@ skills/blender-vfx/
     setup_shot.py             folders, camera, colour, Cycles tier defaults, versioned save
     contact_sheet.py          cheap preview frames tiled into one image
     verify_output.py          frame count, gaps, black frames, flicker spikes
+    tidy_project.py           clutter, temp files and duplicate finder (deletes only with flags)
 evals/evals.json              test prompts to check changes to the skill
+```
+
+## Project layout it creates
+
+```
+MyFilm/
+  README.md      00_brief/   01_source/   02_plates/   03_track/   04_assets/
+  05_blend/      06_cache/   07_renders/  08_comp/     09_deliver/
+  scripts/       logs/       _review/     _tmp/        _archive/
 ```
 
 ## How it differs from other Blender skills

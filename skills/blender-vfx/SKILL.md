@@ -48,6 +48,7 @@ Ask in rounds of at most 4 questions, each with options to pick from. Use a ques
 | Slow renders, faster settings, computer tuning | `references/14-render-speed.md` |
 | A common effect (saber, explosion, creature, sky swap, removal...) | `recipes/README.md`, then one recipe |
 | Learning links, where a method came from | `references/video-index.md` |
+| Folder layout, cleaning up a messy project | `references/15-project-structure.md` |
 
 Read one stage file, do the work, move on. Do not preload the whole folder.
 
@@ -64,6 +65,16 @@ Read one stage file, do the work, move on. Do not preload the whole folder.
 - Open and look at a render before saying anything about it. Never report done until `references/12-review-checklist.md` passes.
 - Keep an asset licence log from the first download.
 
+## Files: keep the project clean
+
+Follow the layout in `references/15-project-structure.md` (numbered folders: `00_brief` to `09_deliver`, plus `scripts`, `logs`, `_review`, `_tmp`, `_archive`). In short:
+
+- Nothing in the project root except `README.md`. Pick the folder before writing a file.
+- One script per pipeline step, edited in place (`03_build_scene.py`), never copied as `_v2` or `_final`. Versions belong to .blend files and render folders.
+- Temp and converted files go to `_tmp/` and are deleted once the step is verified. Debug images go to `_review/` and replace the previous check.
+- Never move or rename files while a render, bake or scheduled job uses them.
+- End of session: run `scripts/tidy_project.py` (dry run), clear `_tmp/`, update `README.md`, report new files and disk used in 2 or 3 lines. Deleting anything else needs the user's yes.
+
 ## Scripts (in `scripts/`, run inside Blender unless noted)
 
 - `probe_scene.py`: compact JSON summary of the scene. Use instead of listing objects.
@@ -71,6 +82,7 @@ Read one stage file, do the work, move on. Do not preload the whole folder.
 - `setup_shot.py`: folders, units, fps, camera sensor and focal length, colour view, Cycles defaults per hardware tier, EXR output and passes, versioned save.
 - `contact_sheet.py`: renders chosen frames cheaply and tiles them into one image, restoring all settings.
 - `verify_output.py` (plain Python with ffmpeg): frame count, gaps, black frames, flicker spikes.
+- `tidy_project.py` (plain Python): finds root clutter, temp files, script copies and byte-identical duplicates; deletes only with explicit flags.
 
 ## Learning loop
 

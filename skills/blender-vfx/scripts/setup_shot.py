@@ -5,7 +5,8 @@ Usage (headless):
       --fps 24 --res 3840x2160 --sensor 23.5 --focal 16 --tier apple
 Or exec inside an MCP code call after setting sys.argv.
 
-Creates <root>/<shot>/{plates,blend,renders/v001,comp,refs,cache}, sets metric
+Creates the standard project layout (references/15-project-structure.md) with
+<shot> subfolders and a README.md if missing, sets metric
 units, frame rate, resolution, camera sensor and focal length, Standard view
 transform for plate work, Cycles defaults for the hardware tier, multilayer
 EXR output and the integration passes, then saves <shot>_v001.blend.
@@ -69,9 +70,16 @@ def next_version(folder, shot):
 
 def main(a):
     root = os.path.expanduser(a.root)
-    base = os.path.join(root, a.shot)
-    for sub in ("plates", "blend", "renders/v001", "comp", "refs", "cache"):
-        os.makedirs(os.path.join(base, sub), exist_ok=True)
+    for sub in ("00_brief", "01_source", "04_assets", "09_deliver", "scripts", "logs",
+                "_review", "_tmp", "_archive"):
+        os.makedirs(os.path.join(root, sub), exist_ok=True)
+    for sub in ("02_plates", "03_track", "05_blend", "06_cache", "07_renders", "08_comp"):
+        os.makedirs(os.path.join(root, sub, a.shot), exist_ok=True)
+    readme = os.path.join(root, "README.md")
+    if not os.path.exists(readme):
+        with open(readme, "w") as fh:
+            fh.write(f"# {os.path.basename(root.rstrip('/'))}\n\nStatus: set up {a.shot}.\nLatest output: none yet.\n"
+                     "Layout: see the blender-vfx skill, references/15-project-structure.md.\n")
 
     scene = bpy.context.scene
     scene.unit_settings.system = "METRIC"
@@ -125,10 +133,12 @@ def main(a):
     else:  # Blender 4.x
         ims.file_format = "OPEN_EXR_MULTILAYER"
     ims.color_depth = "16"
-    r.filepath = os.path.join(base, "renders", "v001", f"{a.shot}_")
-
-    blend_dir = os.path.join(base, "blend")
+    blend_dir = os.path.join(root, "05_blend", a.shot)
     v = next_version(blend_dir, a.shot)
+    render_dir = os.path.join(root, "07_renders", a.shot, f"v{v:03d}")
+    os.makedirs(render_dir, exist_ok=True)
+    r.filepath = os.path.join(render_dir, f"{a.shot.lower()}_")
+
     path = os.path.join(blend_dir, f"{a.shot}_v{v:03d}.blend")
     bpy.ops.wm.save_as_mainfile(filepath=path)
 

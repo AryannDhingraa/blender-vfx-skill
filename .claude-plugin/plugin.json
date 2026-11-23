@@ -1,7 +1,7 @@
 {
   "name": "blender-vfx",
   "description": "Interview-first, token-efficient Blender VFX workflow: tracking, CG integration, simulation, lighting, compositing and delivery, with approval gates.",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "license": "MIT",
   "keywords": ["blender", "vfx", "compositing", "camera-tracking", "matchmove", "skill"]
 }
