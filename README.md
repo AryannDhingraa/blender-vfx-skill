@@ -41,7 +41,7 @@ flowchart LR
 **Claude Code:** copy `skills/blender-vfx` into `~/.claude/skills/` (all projects) or `.claude/skills/` in one project. Or add this repo as a plugin marketplace:
 
 ```
-/plugin marketplace add <your-github-user>/blender-vfx-skill
+/plugin marketplace add AryannDhingraa/blender-vfx-skill
 /plugin install blender-vfx@blender-vfx-skill
 ```
 
