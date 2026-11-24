@@ -8,7 +8,7 @@ One block per shot. Update in 3 to 5 lines after each stage. Read this instead o
 - Strategy: (2D / 2.5D / 3D matchmove / full CG)
 - Stages:
 - Acceptance checks:
-  - [ ] Solve error under 0.3 px
+  - [ ] Solve checks pass (track errors, spread, holdout, no sliding)
   - [ ] No sliding at contact points
   - [ ] CG blacks match plate
   - [ ] Grain matches at 100 percent

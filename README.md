@@ -1,6 +1,6 @@
 # Blender VFX Skill
 
-**Turn your AI agent into a VFX artist that works like a studio: it interviews you, plans the shot, asks before anything expensive, and checks its own work.**
+**Give your AI agent a VFX studio's workflow. It interviews you, plans the shot, drives Blender through scripts, asks before anything expensive, and measures its own output before you review it.**
 
 ![VFX breakdown: live plate, 3D layout, CG render, final comp](media/breakdown.gif)
 
@@ -22,7 +22,13 @@ Left: the agent on its own. A flat sticker that lights nothing. Right: the same 
 - **Clean project folders.** A layout anyone can read, and rules that stop the agent leaving copies, temp files and debug frames everywhere.
 - **Cheap on tokens.** A short core file that loads one guide at a time, compact scene probes instead of dumps, and one contact sheet instead of fifty screenshots.
 - **It learns your habits.** Every finished shot adds a line to `lessons.md`, so the next shot starts smarter.
-- **Drives DaVinci Resolve too**, including the free edition through a Lua bridge.
+- **Drives DaVinci Resolve too**, including the free edition through a Lua bridge. *(Experimental)*
+- **Two modes.** Filmmaker mode talks in film words and gives one recommended plan. VFX Artist mode uses the proper terms and shows options. Same checks in both.
+- **Learning when you want it.** Off by default. Say "teach me this", "explain briefly" or "quiz me", and "back to work" to stop.
+- **Free only, on by default.** No paid assets, APIs or cloud services unless you turn it off, and never money spent without your yes.
+- **Picks up where it left off.** Each shot keeps a tiny state file that survives crashes, so the agent doesn't rediscover the project every session.
+
+**What it checks by itself:** footage blur and exposure, camera move type, solve and track statistics, missing, black or flickering frames, frame counts, slow render settings. **What you still judge:** whether it looks real. The agent shows you a contact sheet at every gate.
 
 ## Quick start
 
@@ -62,17 +68,20 @@ flowchart LR
 
 ## The toolbox
 
-| Script | What it does |
-| --- | --- |
-| `probe_scene.py` | Whole scene in one compact line |
-| `track_report.py` | Tells you if a camera solve can be trusted, not just its error number |
-| `render_doctor.py` | Finds what makes a render slow, ranked, with quality risk per fix |
-| `setup_shot.py` | Builds the project folders, camera, colour and render settings for your hardware |
-| `contact_sheet.py` | Cheap preview frames tiled into one image |
-| `verify_output.py` | Missing, black or flickering frames, wrong frame counts |
-| `tidy_project.py` | Clutter, temp files and exact duplicates |
-| `vfx_engine/analyse_footage.py` | Reads your plate first: locked, rotating or real parallax, blur, exposure, and which solve to use |
-| `vfx_engine/run_job.py` | Runs Blender headless with a timeout and proves the frames were actually written |
+**Working**: built and tested in this repo. **Experimental**: built, tested on only a few cases so far. **Planned**: not built yet.
+
+| Script | What it does | Status |
+| --- | --- | --- |
+| `probe_scene.py` | Whole scene in one compact line | Working |
+| `setup_shot.py` | Builds the project folders, camera, colour and render settings for your hardware | Working |
+| `verify_output.py` | Missing, black or flickering frames, wrong frame counts | Working |
+| `tidy_project.py` | Clutter, temp files and exact duplicates | Working |
+| `shot_state.py` | Small per-shot state with backup and crash recovery | Working |
+| `vfx_engine/analyse_footage.py` | Reads your plate first: locked, rotating or real parallax, blur, exposure, and which solve to use | Working |
+| `track_report.py` | Tells you if a camera solve can be trusted, not just its error number | Experimental |
+| `render_doctor.py` | Finds what makes a render slow, ranked, with quality risk per fix | Experimental |
+| `contact_sheet.py` | Cheap preview frames tiled into one image | Experimental |
+| `vfx_engine/run_job.py` | Runs Blender headless with a timeout and proves the frames were written | Experimental |
 
 ## Project layout it creates
 
@@ -83,16 +92,18 @@ MyFilm/
   scripts/       logs/       _review/     _tmp/        _archive/
 ```
 
-## Roadmap
+## Roadmap (Planned)
 
+- Automated holdout test and sliding check for camera solves
 - Multi-engine tracking with automatic comparison of solves
 - AI masks for actors and foreground objects
-- Checkpoints and automatic recovery for headless jobs
-- A 20-shot benchmark ([test list](docs/test-shots.md)) so every change is measured
+- Checkpoints and automatic retry for headless jobs
+- Results for the 20-shot benchmark ([test list](docs/test-shots.md)), published with failures included
 - Rendering beyond one machine ([options](docs/cloud-rendering.md))
 
 ## Honest limits
 
+- Tested so far with Claude Code and the Claude app, Blender 5.3, on one person's footage. Other agents should work but haven't been tested.
 - Ocean-scale water and city-sized explosions need heavier tools or stock footage. The skill says so instead of faking it.
 - Settings are starting points. Your first real shot shows what to tune.
 - The agent can only drive apps it can connect to.

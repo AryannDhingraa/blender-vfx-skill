@@ -1,16 +1,18 @@
 name: Shot submission
-description: Share a before and after you made with the skill, for the showcase
+description: Share a before and after you made with the skill. Failed shots welcome
 title: "[Shot] "
 labels: ["showcase"]
 body:
   - type: markdown
     attributes:
-      value: Thanks for sharing. Good shots get featured in SHOWCASE.md and on social media with credit. Failed shots are welcome too, they show what to fix next.
+      value: |
+        Thanks for sharing. Successful, partial and failed shots all help: the failed ones show what to fix next.
+        You keep full ownership of your footage and your work. Permission you give here is non-exclusive and you can withdraw it any time by commenting on this issue.
   - type: input
     id: links
     attributes:
       label: Before and after
-      description: Links to the raw plate and the final shot (YouTube, Vimeo, Drive, or drag files into the box below)
+      description: Links to the raw plate and the final shot (YouTube, Vimeo, Drive), or drag files into the next box
     validations:
       required: true
   - type: textarea
@@ -20,11 +22,42 @@ body:
       placeholder: Put a glowing portal on the wall behind me
     validations:
       required: true
+  - type: dropdown
+    id: result
+    attributes:
+      label: Result
+      options:
+        - Successful
+        - Partly successful
+        - Failed
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Skill version
+      description: From CHANGELOG.md or .claude-plugin/plugin.json
+      placeholder: "1.5.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: agent
+    attributes:
+      label: AI agent
+      options:
+        - Claude Code
+        - Claude app or desktop
+        - Codex
+        - Cursor
+        - Gemini CLI
+        - Other (say which below)
+    validations:
+      required: true
   - type: input
     id: setup
     attributes:
-      label: Camera, lens and computer
-      placeholder: Phone, 26mm, M2 MacBook Air 16GB
+      label: Camera, lens, computer and Blender version
+      placeholder: Phone 26mm, M2 MacBook Air 16GB, Blender 5.3
   - type: input
     id: time
     attributes:
@@ -40,11 +73,21 @@ body:
       label: How to credit you
       placeholder: Name and a handle or link
   - type: checkboxes
+    id: scope
+    attributes:
+      label: Where we may feature it (tick all you agree to)
+      options:
+        - label: The GitHub showcase (SHOWCASE.md)
+        - label: Social media posts
+        - label: Promotional or demo videos
+  - type: checkboxes
     id: rights
     attributes:
-      label: Permission
+      label: Rights
       options:
-        - label: I shot this footage myself, and everyone who appears in it agreed to it being shared
+        - label: I shot this footage myself or have the right to share it
           required: true
-        - label: The project may repost this shot with credit
+        - label: Everyone who appears in it agreed to it being shared
+          required: true
+        - label: I have the rights to any music, stock footage or other third-party material in it, or there is none
           required: true

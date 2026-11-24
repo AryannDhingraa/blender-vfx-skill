@@ -7,6 +7,10 @@ Filled in once by the setup interview. Update only when gear changes.
 - Delivery: (16:9 / 9:16 / festival / client)
 - Blender experience:
 - How hands-on: (do it and ask at gates / explain / teach me)
+- Mode: (filmmaker / vfx-artist)
+- Learning: (off / on)
+- Budget: (economy / balanced / quality first)
+- Free only: (on / off)
 - Commercial rights needed: (yes / no)
 
 ## Camera

@@ -48,7 +48,7 @@ def report(clip):
     if not rec.is_valid:
         flags.append("no valid camera solve")
     elif rec.average_error > 0.3:
-        flags.append(f"solve error {rec.average_error:.2f} px is above 0.3")
+        flags.append(f"solve error {rec.average_error:.2f} px is above 0.3 (a warning, not a fail: check spread, holdout and sliding)")
     if weakest and weakest[0][1] < 8:
         flags.append(f"only {weakest[0][1]} tracks on frame {weakest[0][0]} (want 8+)")
     empty_cells = sum(1 for g in grid if g == 0)

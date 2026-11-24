@@ -18,6 +18,16 @@ Never guess a shot. Before any work:
 
 Ask in rounds of at most 4 questions, each with options to pick from. Use a question tool if one exists.
 
+## Modes, learning, resources
+
+- **Mode.** Filmmaker (default): film words, one recommended plan. VFX Artist: technical terms, options and trade-offs. Same checks and gates in both. Details and the user's commands: `references/17-modes-and-learning.md`.
+- **Learning is off** unless the user turns it on ("teach me this", "explain briefly", "teach me deeply", "quiz me", "back to work"). Off never disables checks or gates.
+- **Resource manager.** Before every tool call: is it needed, is the answer already known, can a recorded result be reused, is there a cheaper adequate way. Budget levels Economy, Balanced (default), Quality first. Free only is on by default. Never spend money silently. Rules: `references/18-resource-manager.md`.
+
+## Shot state (small, local, recoverable)
+
+Each shot keeps its state in `05_blend/SHOT/state/` through `scripts/shot_state.py`. At the start of a session run `shot_state.py show DIR` (a few lines) instead of re-checking the project. After each stage run `done`; record reusable outputs (footage analysis, solve, previews) with `result` and test them with `check` before redoing work. State stays under 4 KB: store data in files and record their paths. If the state file is damaged, run `recover`. Never read `history.jsonl` in full.
+
 ## Approval gates (always stop and ask)
 
 - Before any render or simulation bake estimated over 10 minutes (or the user's own limit in the profile). State the estimate, settings, frame range and output path.
@@ -50,6 +60,8 @@ Ask in rounds of at most 4 questions, each with options to pick from. Use a ques
 | Learning links, where a method came from | `references/video-index.md` |
 | Folder layout, cleaning up a messy project | `references/15-project-structure.md` |
 | Hard footage: COLMAP, OpenCV, AI point tracking, AI masks, depth | `references/16-optional-engines.md` |
+| Mode switch, teaching requests | `references/17-modes-and-learning.md` |
+| Choosing tools, budgets, free only | `references/18-resource-manager.md` |
 
 Read one stage file, do the work, move on. Do not preload the whole folder.
 
@@ -85,6 +97,7 @@ Follow the layout in `references/15-project-structure.md` (numbered folders: `00
 - `verify_output.py` (plain Python with ffmpeg): frame count, gaps, black frames, flicker spikes.
 - `track_report.py`: solve error, median and 95th percentile track error, tracks per frame, 3x3 spread, lifespans, flags.
 - `tidy_project.py` (plain Python): finds root clutter, temp files, script copies and byte-identical duplicates; deletes only with explicit flags.
+- `shot_state.py` (plain Python): the shot's small state file: show, set, done, result, check, recover.
 
 If the repository's `vfx_engine/` folder is available, also use: `analyse_footage.py` on every plate before tracking (shot type, blur, exposure, recommended solve) and `run_job.py` for every headless render or bake (timeout, log, verified outputs). Report the JSON results, not your impression.
 
@@ -105,7 +118,7 @@ After each finished shot, add 1 to 3 lines to `lessons.md` (template in `templat
 ## Token budget
 
 - Load one stage file at a time (table above). Never re-read a file already in context.
-- Keep state in `shot-log.md` (template in `templates/`). Update it after each stage in 3 to 5 lines; read it instead of re-checking the whole scene.
+- Machine state lives in `shot_state.py` (read `show`, a few lines). `shot-log.md` (template in `templates/`) is the human notes: append 3 to 5 lines per stage and read only the latest entry.
 - Inspect scenes with `scripts/probe_scene.py`, which returns compact JSON. Never dump full object or node lists.
 - Batch related Blender edits into one script call that returns only counts and errors.
 - Big results (object lists, logs, render stats): aggregate inside Blender or write to a temp JSON file and return its path. Page anything long.

@@ -84,6 +84,56 @@
         "Puts debug frames in _review/ and temp files in _tmp/",
         "Clears _tmp/ and reports new files at the end"
       ]
+    },
+    {
+      "id": "filmmaker-mode-plain-words",
+      "prompt": "Remove the bin behind me in this clip.",
+      "context": "Profile says Blender experience: new. Learning off.",
+      "expect": [
+        "Uses Filmmaker mode wording, no unexplained terms like solve error or Cryptomatte",
+        "Gives one recommended plan in two or three sentences",
+        "Does not add a lesson or explanation nobody asked for",
+        "Still stops at the approval gate before rendering"
+      ]
+    },
+    {
+      "id": "learning-on-demand",
+      "prompt": "Teach me why you tracked it that way, briefly.",
+      "context": "Mid-shot, learning off.",
+      "expect": [
+        "Answers in two or three sentences",
+        "Goes back to the work after answering",
+        "Does not turn learning on for the rest of the session"
+      ]
+    },
+    {
+      "id": "free-only-blocks-paid",
+      "prompt": "Find me a realistic dragon model.",
+      "context": "Profile: free only on.",
+      "expect": [
+        "Suggests only free or CC0 sources",
+        "Does not suggest paid marketplaces or paid AI 3D services",
+        "Asks before downloading"
+      ]
+    },
+    {
+      "id": "resume-from-state",
+      "prompt": "Carry on with shot 020.",
+      "context": "05_blend/sh020/state/ exists with stage render and a recorded footage analysis.",
+      "expect": [
+        "Runs shot_state.py show instead of re-probing the whole project",
+        "Does not re-run analyse_footage.py when check says the result is unchanged",
+        "Does not read history.jsonl in full"
+      ]
+    },
+    {
+      "id": "cheapest-method",
+      "prompt": "Remove the cup from the table. Camera is on a tripod and nothing moves.",
+      "context": "Locked-off plate.",
+      "expect": [
+        "Chooses a static patch, not a camera solve or AI mask",
+        "Explains the choice in one line"
+      ]
     }
   ]
 }

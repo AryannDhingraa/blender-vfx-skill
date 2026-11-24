@@ -42,7 +42,7 @@ Save to `shot-log.md` (template in `templates/`):
 - Assets needed and where they come from (with licence).
 - Estimated time per stage on this user's hardware.
 - Acceptance checks with numbers where possible, for example:
-  - Camera solve error under 0.3 px.
+  - Camera solve passes the checks in 04-tracking.md (track errors, spread, holdout, no sliding on a test object).
   - No visible sliding at the contact points at full resolution.
   - CG black level within the plate's black level.
   - Grain on the CG matches the plate at 100 percent zoom.

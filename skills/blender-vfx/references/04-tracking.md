@@ -8,7 +8,7 @@ Track every moving shot first, so CG sticks to the ground. All of this happens i
 2. Set Sensor Width and Focal Length from the profile and shot notes. Wrong values give bent solves.
 3. Place markers on high contrast, static points spread across the frame and the depth (near and far). Keep at least 8 visible on every frame. Never track moving people, water, reflections or leaves.
 4. Track forwards and backwards. Delete short tracks that jump.
-5. Solve Camera Motion. Target an average solve error under 0.3 px. Clean the worst markers and solve again. Refine focal length or distortion only if the error stays high.
+5. Solve Camera Motion. Treat the solve error as one diagnostic, not a pass or fail line: around 0.3 px is a good sign on clean HD footage, but the right number depends on resolution, footage quality and shot type. Judge the solve on median and 95th percentile track error, spread across the frame and depth, holdout tracks, a smooth camera path and no visible sliding on a test object. Clean the worst markers and solve again. Refine focal length or distortion only if the error stays high. Blender needs at least 8 markers to solve, and 8 is a minimum, not a guarantee.
 6. Tripod pans have no parallax: use Tripod solving.
 7. Setup Tracking Scene. Set the floor from 3 ground markers, the origin, and real scale from a measured distance.
 

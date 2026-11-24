@@ -6,8 +6,10 @@ Ask these in rounds of up to 4, with options. Skip anything the user already tol
 
 1. What are you making? (short films, YouTube videos, social reels, music videos, client work, learning)
 2. Where will it be shown? (YouTube 16:9, Reels/TikTok/Shorts 9:16, festivals or cinema, client delivery). Several allowed.
-3. Experience with Blender? (new, some, comfortable, pro)
-4. How hands-on do you want to be? (do it all for me and ask at gates, explain as you go, teach me step by step)
+3. Experience with Blender? (new, some, comfortable, pro). New or some means Filmmaker mode, comfortable or pro means VFX Artist mode. Say which one you picked and that they can switch any time.
+4. How hands-on do you want to be? (do it all for me and ask at gates, explain as you go, teach me step by step). Only "teach me step by step" turns learning on.
+
+Offer "I don't know" for every technical question below. Where you can detect something yourself (OS, GPU, RAM, Blender version, ffmpeg), detect it and ask only to confirm.
 
 ## Round 2: camera and lens
 
@@ -28,7 +30,7 @@ Ask these in rounds of up to 4, with options. Skip anything the user already tol
 1. Blender version.
 2. Grading and editing app, and edition (DaVinci Resolve Free or Studio, Premiere, Final Cut, other).
 3. Other tools they own (Nuke, After Effects, Houdini, FLIP Fluids, motion capture suit, Mixamo, tracking software).
-4. Asset budget: free only, small purchases fine, or will hire help.
+4. Asset budget: free only (default, blocks anything paid), small purchases fine, or will hire help. Also: how hard should the agent save on tokens and computer time? (economy, balanced as default, quality first)
 
 ## Round 5: style and limits (optional)
 
