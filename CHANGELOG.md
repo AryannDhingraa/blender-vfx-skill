@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.0 (2026-11-24)
+- vfx_engine: analyse_footage.py (shot type, blur, exposure, recommended solve) and run_job.py (headless Blender with timeout, log and verified outputs).
+- docs: 20-shot benchmark list, rendering beyond one machine.
+
 ## 1.3.0 (2026-11-24)
 - track_report.py: solve trust report (median and 95th percentile error, tracks per frame, image spread, lifespans, flags).
 - Tracking guide: shot classification, holdout and forward-backward checks, lens calibration.

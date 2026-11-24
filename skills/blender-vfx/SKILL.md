@@ -86,6 +86,8 @@ Follow the layout in `references/15-project-structure.md` (numbered folders: `00
 - `track_report.py`: solve error, median and 95th percentile track error, tracks per frame, 3x3 spread, lifespans, flags.
 - `tidy_project.py` (plain Python): finds root clutter, temp files, script copies and byte-identical duplicates; deletes only with explicit flags.
 
+If the repository's `vfx_engine/` folder is available, also use: `analyse_footage.py` on every plate before tracking (shot type, blur, exposure, recommended solve) and `run_job.py` for every headless render or bake (timeout, log, verified outputs). Report the JSON results, not your impression.
+
 ## Learning loop
 
 After each finished shot, add 1 to 3 lines to `lessons.md` (template in `templates/`): settings that worked, mistakes to avoid, preferences the user showed. This is how the skill gets better for each user without retraining.

@@ -71,6 +71,8 @@ flowchart LR
 | `contact_sheet.py` | Cheap preview frames tiled into one image |
 | `verify_output.py` | Missing, black or flickering frames, wrong frame counts |
 | `tidy_project.py` | Clutter, temp files and exact duplicates |
+| `vfx_engine/analyse_footage.py` | Reads your plate first: locked, rotating or real parallax, blur, exposure, and which solve to use |
+| `vfx_engine/run_job.py` | Runs Blender headless with a timeout and proves the frames were actually written |
 
 ## Project layout it creates
 
@@ -85,8 +87,9 @@ MyFilm/
 
 - Multi-engine tracking with automatic comparison of solves
 - AI masks for actors and foreground objects
-- Headless job runner with checkpoints and automatic recovery
-- A benchmark set of test shots so every change is measured
+- Checkpoints and automatic recovery for headless jobs
+- A 20-shot benchmark ([test list](docs/test-shots.md)) so every change is measured
+- Rendering beyond one machine ([options](docs/cloud-rendering.md))
 
 ## Honest limits
 
