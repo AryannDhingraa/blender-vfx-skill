@@ -1,0 +1,50 @@
+name: Shot submission
+description: Share a before and after you made with the skill, for the showcase
+title: "[Shot] "
+labels: ["showcase"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for sharing. Good shots get featured in SHOWCASE.md and on social media with credit. Failed shots are welcome too, they show what to fix next.
+  - type: input
+    id: links
+    attributes:
+      label: Before and after
+      description: Links to the raw plate and the final shot (YouTube, Vimeo, Drive, or drag files into the box below)
+    validations:
+      required: true
+  - type: textarea
+    id: ask
+    attributes:
+      label: What you asked the agent for
+      placeholder: Put a glowing portal on the wall behind me
+    validations:
+      required: true
+  - type: input
+    id: setup
+    attributes:
+      label: Camera, lens and computer
+      placeholder: Phone, 26mm, M2 MacBook Air 16GB
+  - type: input
+    id: time
+    attributes:
+      label: Render time and total time spent
+      placeholder: 25 s a frame, about 3 hours total
+  - type: textarea
+    id: manual
+    attributes:
+      label: What you fixed by hand, and what went wrong
+  - type: input
+    id: credit
+    attributes:
+      label: How to credit you
+      placeholder: Name and a handle or link
+  - type: checkboxes
+    id: rights
+    attributes:
+      label: Permission
+      options:
+        - label: I shot this footage myself, and everyone who appears in it agreed to it being shared
+          required: true
+        - label: The project may repost this shot with credit
+          required: true

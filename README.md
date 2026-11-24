@@ -97,6 +97,10 @@ MyFilm/
 - Settings are starting points. Your first real shot shows what to tune.
 - The agent can only drive apps it can connect to.
 
+## Show us your shot
+
+Made something with the skill? Send the before and after through the [shot form](https://github.com/AryannDhingraa/blender-vfx-skill/issues/new?template=shot-submission.yml) or post it with **#BlenderVFXSkill**. The best ones go in the [showcase](SHOWCASE.md) and get shared with credit. Failed shots help too.
+
 ## Contributing
 
 Issues and pull requests are welcome: camera notes for your model, render timings before and after, new recipes, and test prompts in `evals/evals.json`. Keep `SKILL.md` short and put detail in the stage guides.
