@@ -28,10 +28,10 @@ Never stabilise the plate before tracking unless you keep the stabilisation tran
 
 ## Check the solve, not just the number
 
-Run `scripts/track_report.py` after every solve. It reports median and 95th percentile track error, tracks per frame, spread over a 3x3 image grid and track lifespans, with flags.
+Run `scripts/track_report.py` after every solve. It reports median and 95th percentile track error, tracks per frame, how much of the image the tracks cover on every frame (not just on average), per-frame reprojection error with spike frames (jitter or sliding), holdout error, and a `trust` of high, medium or low. Its own projection is checked against Blender's per-track errors; if they disagree it withholds the per-frame and holdout numbers instead of guessing.
 
 - A low average error alone does not prove a good solve. A solve can score well and still have the wrong depth or a bent floor.
-- Holdout check: before solving, set aside 2 or 3 good tracks (mute them), solve, then unmute and check their error. High error on tracks the solver never saw means the camera is wrong.
+- Holdout check: on a saved copy run `track_report.py -- --prepare-holdout 3` (sets 3 long, spread tracks to weight 0 so the solver ignores them), solve again, run the report. It triangulates those tracks from the solved cameras; high error on tracks the solver never saw means the camera is wrong. `--restore-holdout` puts the weights back.
 - Forward-backward check: track a marker forwards, then backwards from its last frame. If the two paths disagree by more than about 1 px, delete it.
 - 200 good, well spread markers beat 2000 weak ones. Replace lost markers as the camera moves.
 - Visual check: put a few small cubes on the ground plane and a wall, render the contact sheet, and look for sliding.

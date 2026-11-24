@@ -5,8 +5,8 @@ Use the cheapest method that reaches the quality the shot needs. Four costs are 
 ## Before every tool call
 
 1. Is it needed for this step?
-2. Is the answer already known? Check the shot state (`scripts/shot_state.py show`) and recorded results first.
-3. Can a recorded result be reused? `shot_state.py check DIR NAME` says whether the file is unchanged since it was recorded.
+2. Is the answer already known? `vfx.py status SHOT_DIR` shows state, stale results and jobs in one call.
+3. Can a recorded result be reused? `vfx.py state check SHOT_DIR NAME` says whether its files, inputs and settings are unchanged.
 4. Is there a cheaper way that is good enough?
 5. Will the call change the result?
 
@@ -17,13 +17,14 @@ If not, skip it. Never repeat a successful call without a reason. Never retry a 
 | Tool | Use when |
 | --- | --- |
 | `probe_scene.py` | A .blend exists and you need its state. Once per session unless the scene changed |
-| `analyse_footage.py` | New plate, or the plate changed. Record the JSON with `shot_state.py result` |
+| `vfx.py analyse --state` | New plate, or the plate changed. It records the result itself |
 | `track_report.py` | The shot needs a camera solve, after each solve |
 | `render_doctor.py` | A render estimate is over the user's limit, or a render is slower than expected |
 | `contact_sheet.py` | Before a gate, or to compare revisions. Not after every edit |
-| `run_job.py` | Every headless render or bake |
-| `verify_output.py` | After a video export |
-| `tidy_project.py` | End of session, or when the user asks |
+| `vfx.py run`, `resume` | Every headless render or bake; resume re-renders only bad frames |
+| `vfx.py verify` | After a video export or to check frames without a job |
+| `vfx.py tidy` | End of session, or when the user asks |
+| `vfx.py assets search` | Only when no asset in `04_assets/` fits; one search, one sheet |
 
 Pick the smallest workflow for the shot. A still object on a locked-off shot needs a patch, not a camera solve and an AI mask. A person crossing a moving shot needs the full chain.
 
@@ -46,8 +47,9 @@ Whatever the setting, never spend money or start a paid service without the user
 ## Reading files
 
 - Load one stage guide at a time, from the stage map. Never preload the folder.
-- Read the shot state summary, not the whole history. `history.jsonl` is only for `recover`.
-- Logs stay on disk. Bring in only the error lines (`run_job.py` already returns them).
+- Read the shot state summary, not the whole history. `history.jsonl` is only for `state recover`.
+- Record outputs with `vfx.py state record NAME FILES --deps INPUTS`; when an input changes, everything built from it shows as stale, so redo only that chain.
+- Logs stay on disk. Bring in only the error lines (`vfx.py run` already returns them).
 - Never re-read a file that is already in context and unchanged.
 
 ## Measuring

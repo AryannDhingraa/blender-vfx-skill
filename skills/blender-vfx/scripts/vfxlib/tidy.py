@@ -1,23 +1,14 @@
 """Audit a VFX project folder: clutter, duplicates, temp files, old versions.
 
-Usage:
-  python3 tidy_project.py /path/to/project            # report only (default)
-  python3 tidy_project.py /path/to/project --plan     # also print suggested moves
-  python3 tidy_project.py /path/to/project --clear-tmp           # empty _tmp/
-  python3 tidy_project.py /path/to/project --delete-duplicates   # remove verified byte-identical copies
-
 Never deletes anything without an explicit flag, and only deletes files that
 are byte-identical to a kept file (checked with SHA-256) or inside _tmp/.
 Prints one compact JSON report so agents can read it cheaply.
 """
-import argparse
 import collections
 import hashlib
-import json
 import os
 import re
 import shutil
-import sys
 
 STANDARD = {"00_brief", "01_source", "02_plates", "03_track", "04_assets", "05_blend", "06_cache",
             "07_renders", "08_comp", "09_deliver", "scripts", "logs", "_review", "_tmp", "_archive",
@@ -41,14 +32,8 @@ def mb(n):
     return round(n / 1e6, 1)
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("root")
-    ap.add_argument("--plan", action="store_true")
-    ap.add_argument("--clear-tmp", action="store_true")
-    ap.add_argument("--delete-duplicates", action="store_true")
-    a = ap.parse_args()
-    root = os.path.abspath(os.path.expanduser(a.root))
+def audit(root, plan=False, clear_tmp=False, delete_duplicates=False):
+    root = os.path.abspath(os.path.expanduser(root))
 
     files = []
     for dp, dn, fn in os.walk(root):
@@ -56,7 +41,7 @@ def main():
         for f in fn:
             p = os.path.join(dp, f)
             try:
-                files.append((os.path.relpath(p, root), os.path.getsize(p)))
+                files.append((os.path.relpath(p, root).replace(os.sep, "/"), os.path.getsize(p)))
             except OSError:
                 pass
 
@@ -105,7 +90,7 @@ def main():
                        "mb_wasted": mb(dup_bytes), "examples": dup_groups[:3]},
     }
 
-    if a.plan:
+    if plan:
         plan = []
         for f in root_clutter:
             ext = os.path.splitext(f)[1].lower()
@@ -115,14 +100,14 @@ def main():
             plan.append([f, dest])
         report["suggested_moves"] = plan
 
-    if a.clear_tmp:
+    if clear_tmp:
         tmp = os.path.join(root, "_tmp")
         if os.path.isdir(tmp):
             shutil.rmtree(tmp)
             os.makedirs(tmp)
         report["cleared_tmp"] = True
 
-    if a.delete_duplicates:
+    if delete_duplicates:
         removed = 0
         for d in dup_groups:
             keep_hash = sha(os.path.join(root, d["keep"]))
@@ -133,8 +118,4 @@ def main():
                     removed += 1
         report["duplicates_removed"] = removed
 
-    print(json.dumps(report, separators=(",", ":")))
-
-
-if __name__ == "__main__":
-    sys.exit(main())
+    return report

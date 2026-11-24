@@ -3,3 +3,5 @@ __pycache__/
 .DS_Store
 vfx-profile.md
 !skills/blender-vfx/templates/vfx-profile.md
+.pytest_cache/
+dist/

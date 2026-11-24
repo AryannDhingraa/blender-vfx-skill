@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.0.0 (2026-11-24)
+- One engine, `scripts/vfx.py` plus the `vfxlib` package, replaces shot_state.py, verify_output.py, tidy_project.py and the separate vfx_engine folder. Old commands map to `vfx.py state`, `verify`, `tidy`, `analyse`, `run`.
+- Footage: the camera move is only named with enough evidence (frames, features, consistent pairs); otherwise "unknown" with reasons. Decided from homography residuals, so results no longer change between OpenCV versions.
+- Tracking: track_report.py adds per-frame reprojection error and spike frames, coverage on every frame, automated holdout tracks (`--prepare-holdout`), a trust level, and a self-check against Blender's own errors.
+- State: schema validation, OS file locks, checksummed history, recovery that also refreshes the backup, and dependency-aware results: when an input changes, everything built from it is reported stale.
+- Jobs: per-job manifests, Blender's Python errors return an exit code, structural checks of PNG, JPEG, EXR and TIFF frames, detection of interrupted jobs, resume that re-renders only missing, corrupt or stale frames, a 3-attempt limit, and one writer per output folder.
+- Assets: Poly Haven and ambientCG search ranked for the machine, thumbnail contact sheet, download only with `--approved`, checksums, licence log; import_asset.py; procedural_asset.py as the fallback.
+- Destruction: build_proxy.py (RANSAC planes from tracked points, plate projection baked to UVs) and destruction.py (partial fracture at the impact only).
+- SKILL.md is 26 percent smaller. Tests: 54 (real Blender 4.2, 5.1, 5.3), CI on Linux, macOS and Windows.
+
 ## 1.5.0 (2026-11-24)
 - Filmmaker and VFX Artist modes (17-modes-and-learning.md). Learning off by default, on request only.
 - Resource manager (18-resource-manager.md): tool-call checks, reuse of recorded results, budget levels, free only on by default.

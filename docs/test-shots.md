@@ -25,4 +25,4 @@ Twenty short clips (5 to 10 seconds each) that every change to the skill and eng
 | 19 | Window with bright sky | Clipped highlights, sky replacement |
 | 20 | Night street with lights | Practical light matching |
 
-For each shot the benchmark records: `analyse_footage.py` result, solve error and `track_report.py` flags, render time, and a human 1 to 5 rating of the final comp.
+For each shot the benchmark records: `vfx.py analyse` result, solve error and `track_report.py` flags, render time, and a human 1 to 5 rating of the final comp.

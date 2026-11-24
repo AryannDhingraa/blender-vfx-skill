@@ -28,4 +28,4 @@
 
 ## Final verification
 
-Run `12-review-checklist.md`, then check the exported file: frame count (seconds times fps), resolution, duration, audio present, no black or duplicated frames. `scripts/verify_output.py` does this with ffprobe.
+Run `12-review-checklist.md`, then check the exported file: frame count (seconds times fps), resolution, duration, audio present, no black or duplicated frames. `vfx.py verify FILE --fps N --seconds N` does this with ffprobe.

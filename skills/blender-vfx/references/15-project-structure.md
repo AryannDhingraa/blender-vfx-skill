@@ -37,9 +37,9 @@ Single-shot projects skip the `SHOT/` level.
 7. **Blender auto-backups**: set Preferences, Save and Load, Save Versions to 0 for VFX projects, because versions are saved by hand. Ask before changing it; it is an app-wide setting.
 8. **Superseded experiments** (old test scenes, old renders) move to `_archive/` with a one-line note in `README.md`. Deleting anything outside `_tmp/` needs the user's yes.
 9. **Names**: lowercase, no spaces, `shot_layer_v###`, frames padded to 4 digits (`0001`).
-10. **End of every session**: run `scripts/tidy_project.py` (dry run), clear `_tmp/`, update `README.md`, and report new files and disk used in 2 or 3 lines.
+10. **End of every session**: run `vfx.py tidy PROJECT` (report only), clear `_tmp/`, update `README.md`, and report new files and disk used in 2 or 3 lines.
 11. **Never move or rename files while a render, bake or scheduled job is using them.** Paths in scripts would break. Tidy after the job finishes.
 
 ## Why it saves tokens
 
-The agent reads `README.md` and `00_brief/shot-log.md` to know where things are, instead of listing hundreds of frames. Frame folders are never listed in full; check them with counts (`verify_output.py`).
+The agent reads `README.md` and `00_brief/shot-log.md` to know where things are, instead of listing hundreds of frames. Frame folders are never listed in full; check them with `vfx.py verify`.

@@ -42,4 +42,4 @@ Compare every revision with the previous one, so fixing the lighting cannot quie
 
 - Frame count, resolution and frame range match the brief.
 - No black, missing or duplicated frames.
-- Neighbour-frame comparison for flicker spikes (`scripts/verify_output.py` reports frame stats; a sudden jump in average brightness on one frame is a dropped sample or a mixed-machine render).
+- Neighbour-frame comparison for flicker spikes (`vfx.py verify` reports missing, corrupt, black and flickering frames; a sudden jump in average brightness on one frame is a dropped sample or a mixed-machine render).

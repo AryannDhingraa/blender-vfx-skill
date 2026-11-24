@@ -2,7 +2,8 @@
 
 ## Sourcing
 
-1. Check free CC0 libraries first: Poly Haven (models, textures, HDRIs), ambientCG (materials), Blender's asset browser.
+1. Search free CC0 libraries first: `vfx.py assets search "<words>" --type model|texture|hdri --sheet _review/assets.jpg`. It ranks Poly Haven and ambientCG results for the shot and this machine (polycount, texture size, real size) and makes one contact sheet. Show the user the sheet and the 3 to 5 options (name, link, licence, resolution, polygons, suitability), wait for their pick and resolution, then `vfx.py assets download ID --source ... --type ... --res 2k --dest 04_assets --approved --licence-log 00_brief/asset-licenses.md`, then `scripts/import_asset.py -- --manifest 04_assets/ID/asset.json`.
+   Nothing fits: offer `scripts/procedural_asset.py -- --kind rock|debris|crate|brick_wall|plank --preview _review/asset.png` and show the preview before using it.
 2. Then paid stores. Ask before buying. Log every asset in `asset-licenses.md` (template in `templates/`) with source, licence and whether it allows commercial use.
 3. Missing model: generate a reference image described like an expert would (exact type, shape, silhouette details, with exclusions like no text, no logos), turn it into a mesh with an image to 3D tool, keep the shape, delete its textures, remesh or retopologise, unwrap.
 4. Sculpting a hero creature from scratch takes months. Buy or commission instead.

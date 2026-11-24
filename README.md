@@ -47,7 +47,9 @@ Or copy `skills/blender-vfx` into `~/.claude/skills/`.
 
 Then just ask: *"Put a glowing portal on the wall behind me in this clip."* The skill takes it from there.
 
-**Works best with** Blender 4.2+ (tested on 5.3), a Blender MCP connection so the agent can drive Blender directly, and `ffmpeg`.
+Check the install with `python3 skills/blender-vfx/scripts/vfx.py doctor`.
+
+**Works best with** Blender 4.2+ (tested on 4.2, 5.1 and 5.3), a Blender MCP connection so the agent can drive Blender directly, and `ffmpeg`.
 
 ## How a shot flows
 
@@ -70,18 +72,23 @@ flowchart LR
 
 **Working**: built and tested in this repo. **Experimental**: built, tested on only a few cases so far. **Planned**: not built yet.
 
-| Script | What it does | Status |
+| Tool | What it does | Status |
 | --- | --- | --- |
-| `probe_scene.py` | Whole scene in one compact line | Working |
-| `setup_shot.py` | Builds the project folders, camera, colour and render settings for your hardware | Working |
-| `verify_output.py` | Missing, black or flickering frames, wrong frame counts | Working |
-| `tidy_project.py` | Clutter, temp files and exact duplicates | Working |
-| `shot_state.py` | Small per-shot state with backup and crash recovery | Working |
-| `vfx_engine/analyse_footage.py` | Reads your plate first: locked, rotating or real parallax, blur, exposure, and which solve to use | Working |
-| `track_report.py` | Tells you if a camera solve can be trusted, not just its error number | Experimental |
-| `render_doctor.py` | Finds what makes a render slow, ranked, with quality risk per fix | Experimental |
-| `contact_sheet.py` | Cheap preview frames tiled into one image | Experimental |
-| `vfx_engine/run_job.py` | Runs Blender headless with a timeout and proves the frames were written | Experimental |
+| `vfx.py status` / `state` | Tiny per-shot state: locked, validated, crash-recoverable, and it knows which results went stale when an input changed | Working |
+| `vfx.py analyse` | Reads your plate first: locked, rotation or parallax, and says "unknown" with reasons when the evidence is weak | Working |
+| `vfx.py run` / `resume` / `job` | Headless Blender with timeout and log; checks every frame; resume re-renders only missing or broken frames | Working |
+| `vfx.py verify` | Missing, empty, truncated or corrupt frames (PNG, JPEG, EXR, TIFF), black frames, flicker, video frame counts | Working |
+| `vfx.py assets` | Searches free CC0 models, textures and HDRIs, ranks them for your machine, makes a thumbnail sheet, downloads only after you approve | Working |
+| `vfx.py tidy` / `doctor` / `package` | Clutter and duplicate report, install check, zip for upload | Working |
+| `build_proxy.py` | Fits walls and floors to tracked points and bakes the plate projection onto them | Working |
+| `destruction.py` | Breaks only the area around an impact, with rigid bodies that wake on the hit | Working |
+| `procedural_asset.py` | Rocks, debris, crates, brick walls and planks with a preview render, when no download fits | Working |
+| `import_asset.py` | Brings in a downloaded model, texture set or HDRI with the right colour settings | Working |
+| `setup_shot.py`, `probe_scene.py`, `contact_sheet.py` | Shot setup, compact scene summary, cheap preview sheet | Working |
+| `track_report.py` | Solve trust: per-frame error, coverage on every frame, holdout tracks, self-check against Blender | Experimental: maths verified against Blender's camera; not yet run on a real solved clip |
+| `render_doctor.py` | What makes a render slow, ranked, with quality risk | Experimental |
+
+Working means covered by the automated tests, which run real Blender (4.2 LTS, 5.1 and 5.3) on Linux, plus the pure-Python tests on macOS and Windows.
 
 ## Project layout it creates
 
@@ -94,16 +101,16 @@ MyFilm/
 
 ## Roadmap (Planned)
 
-- Automated holdout test and sliding check for camera solves
+- Run the solve trust report on the 20-shot benchmark and publish the numbers
 - Multi-engine tracking with automatic comparison of solves
 - AI masks for actors and foreground objects
-- Checkpoints and automatic retry for headless jobs
 - Results for the 20-shot benchmark ([test list](docs/test-shots.md)), published with failures included
 - Rendering beyond one machine ([options](docs/cloud-rendering.md))
 
 ## Honest limits
 
-- Tested so far with Claude Code and the Claude app, Blender 5.3, on one person's footage. Other agents should work but haven't been tested.
+- Tested with Claude Code and the Claude app, Blender 4.2, 5.1 and 5.3, and so far one person's footage. Other agents should work but haven't been tested.
+- Footage analysis is tested on synthetic clips and one real handheld plate; it says "unknown" rather than guess, which will happen on hard footage.
 - Ocean-scale water and city-sized explosions need heavier tools or stock footage. The skill says so instead of faking it.
 - Settings are starting points. Your first real shot shows what to tune.
 - The agent can only drive apps it can connect to.

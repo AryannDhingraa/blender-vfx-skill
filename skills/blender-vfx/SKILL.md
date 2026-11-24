@@ -1,126 +1,105 @@
 ---
 name: blender-vfx
-description: Plan, build and review realistic VFX shots in Blender, from CG put into live action footage to full CG shots. Interviews the user about their camera, computer and shot, asks for approval before slow or risky steps, and loads only the guide for the current stage to save tokens. Use for camera tracking, CG integration, simulations, lighting to match a plate, render passes, compositing, or any hyper-realistic Blender shot.
+description: Plan, build and review realistic VFX shots in Blender, from CG put into live action footage to full CG shots. Interviews the user about their camera, computer and shot, asks for approval before slow or risky steps, and loads only the guide for the current stage to save tokens. Use for camera tracking, CG integration, destruction, asset finding, simulations, lighting to match a plate, render passes, compositing, or any hyper-realistic Blender shot.
 ---
 
 # Blender VFX
 
-A working method for realistic shots in Blender, built from how working VFX artists put CG into real footage. Blender does the tracking, 3D, simulation, rendering and integration compositing. A grading app (DaVinci Resolve or similar) does the edit, grade and sound.
+A working method for realistic shots in Blender. Blender does tracking, 3D, simulation, rendering and integration compositing; a grading app (DaVinci Resolve or similar) does the edit, grade and sound. Tools live in `scripts/`: `vfx.py` (plain Python) and Blender scripts.
 
 ## Rule zero: ask, then build
 
-Never guess a shot. Before any work:
+1. Run `python3 scripts/vfx.py status SHOT_DIR` (state, stale results, unfinished jobs). Read `lessons.md` if it exists.
+2. No `vfx-profile.md`: run `references/00-setup-interview.md` once and save it. Never re-ask; read the profile.
+3. New shot: `references/01-shot-brief.md`, then `vfx.py state init SHOT_DIR`.
+4. Show the brief, plan (stages, tools, rough time) and checks. Wait for a yes.
 
-1. **Lessons.** If `lessons.md` exists in the project, read it first. It holds what worked and failed on this user's earlier shots.
-2. **Setup profile.** Look for `vfx-profile.md` in the project folder (or saved memory). If it is missing, run the setup interview in `references/00-setup-interview.md` once and save the answers there. Never ask those questions again; read the profile.
-3. **Shot brief.** For every new shot, run the shot interview in `references/01-shot-brief.md`. Turn the answers into a written brief with acceptance checks.
-4. **Plan approval.** Show the brief, the plan (which stages, which tools, rough time) and the checks. Wait for a yes.
-
-Ask in rounds of at most 4 questions, each with options to pick from. Use a question tool if one exists.
+Ask in rounds of at most 4 questions, each with options. Use a question tool if one exists.
 
 ## Modes, learning, resources
 
-- **Mode.** Filmmaker (default): film words, one recommended plan. VFX Artist: technical terms, options and trade-offs. Same checks and gates in both. Details and the user's commands: `references/17-modes-and-learning.md`.
-- **Learning is off** unless the user turns it on ("teach me this", "explain briefly", "teach me deeply", "quiz me", "back to work"). Off never disables checks or gates.
-- **Resource manager.** Before every tool call: is it needed, is the answer already known, can a recorded result be reused, is there a cheaper adequate way. Budget levels Economy, Balanced (default), Quality first. Free only is on by default. Never spend money silently. Rules: `references/18-resource-manager.md`.
-
-## Shot state (small, local, recoverable)
-
-Each shot keeps its state in `05_blend/SHOT/state/` through `scripts/shot_state.py`. At the start of a session run `shot_state.py show DIR` (a few lines) instead of re-checking the project. After each stage run `done`; record reusable outputs (footage analysis, solve, previews) with `result` and test them with `check` before redoing work. State stays under 4 KB: store data in files and record their paths. If the state file is damaged, run `recover`. Never read `history.jsonl` in full.
+- **Mode:** Filmmaker (default) uses film words and one plan; VFX Artist uses terms, options and trade-offs. Same checks and gates. `references/17-modes-and-learning.md`.
+- **Learning is off** until the user asks ("teach me this", "explain briefly", "quiz me"; "back to work" stops). Off never skips checks or gates.
+- **Resources:** before any tool call ask: needed? already known? reusable? cheaper way? Budgets Economy, Balanced (default), Quality first. Free only is on by default; never spend money silently. `references/18-resource-manager.md`.
 
 ## Approval gates (always stop and ask)
 
-- Before any render or simulation bake estimated over 10 minutes (or the user's own limit in the profile). State the estimate, settings, frame range and output path.
-- Before the final render: show a contact sheet of preview frames and the checklist status.
-- Before overwriting or deleting anything the user made: their .blend, footage, renders, assets, preferences. Save a new version instead (`shot010_v003.blend`).
-- Before downloading paid assets, installing add-ons, or changing app-wide settings.
-- When something fails twice the same way (track will not solve, out of memory, crash), stop, explain, offer options.
-- When the brief asks for something the hardware or the footage cannot deliver, say so before starting, with the closest workable option.
+- Any render, bake or simulation estimated over 10 minutes (or the profile's limit): state estimate, settings, frames, output path.
+- The final render: show a contact sheet and the checklist status first.
+- Overwriting or deleting anything the user made. Save a new version instead (`shot010_v003.blend`).
+- Downloading assets (show the options sheet first), installing add-ons, changing app-wide settings, anything paid.
+- The same failure twice (track will not solve, out of memory, crash): stop, explain, offer options. `vfx.py resume` refuses after 3 attempts.
+- When the brief needs more than the hardware or footage can give: say so first, with the closest workable option.
 
 ## Stage map: load only what you need
 
 | Stage | Load |
 | --- | --- |
-| First run | `references/00-setup-interview.md` |
-| New shot | `references/01-shot-brief.md` |
-| Before or during a shoot | `references/02-shooting-the-plate.md` |
-| Log footage, colour spaces, round trips | `references/03-color-pipeline.md` |
-| Camera tracking, set rebuild | `references/04-tracking.md` |
-| Models, materials, digital doubles | `references/05-assets-materials.md` |
-| Animation, mocap | `references/06-animation.md` |
-| Smoke, fire, water, destruction, cloth | `references/07-simulation.md` |
-| Lighting, render passes, render settings | `references/08-lighting-rendering.md` |
-| Compositing in Blender | `references/09-compositing.md` |
-| Grade, sound, 16:9 and 9:16, festival masters, asset licences | `references/10-finishing-delivery.md` |
-| Speed and memory for the user's machines | `references/11-hardware.md` |
+| First run / new shot | `references/00-setup-interview.md` / `references/01-shot-brief.md` |
+| Shooting the plate | `references/02-shooting-the-plate.md` |
+| Log footage, colour round trips | `references/03-color-pipeline.md` |
+| Tracking, solve trust, set rebuild | `references/04-tracking.md` |
+| Finding, approving and importing assets; materials | `references/05-assets-materials.md` |
+| Animation | `references/06-animation.md` |
+| Simulation, destruction | `references/07-simulation.md`, `recipes/split-and-destruction.md` |
+| Lighting, passes, render settings | `references/08-lighting-rendering.md` |
+| Compositing | `references/09-compositing.md` |
+| Grade, sound, delivery, licences | `references/10-finishing-delivery.md` |
+| Hardware, slow renders | `references/11-hardware.md`, `references/14-render-speed.md` |
 | Review before showing anything | `references/12-review-checklist.md` |
-| Controlling DaVinci Resolve | `references/13-resolve-automation.md` |
-| Slow renders, faster settings, computer tuning | `references/14-render-speed.md` |
-| A common effect (saber, explosion, creature, sky swap, removal...) | `recipes/README.md`, then one recipe |
-| Learning links, where a method came from | `references/video-index.md` |
-| Folder layout, cleaning up a messy project | `references/15-project-structure.md` |
-| Hard footage: COLMAP, OpenCV, AI point tracking, AI masks, depth | `references/16-optional-engines.md` |
-| Mode switch, teaching requests | `references/17-modes-and-learning.md` |
-| Choosing tools, budgets, free only | `references/18-resource-manager.md` |
+| DaVinci Resolve control | `references/13-resolve-automation.md` |
+| Folder layout, cleanup | `references/15-project-structure.md` |
+| Hard footage: COLMAP, AI masks, depth | `references/16-optional-engines.md` |
+| Common effects | `recipes/README.md`, then one recipe |
+| Where a method came from | `references/video-index.md` |
 
-Read one stage file, do the work, move on. Do not preload the whole folder.
+Read one stage file, do the work, move on.
+
+## Tools
+
+`vfx.py` (run `python3 scripts/vfx.py -h` once if unsure of a flag):
+- `status`, `state init|set|done|reopen|record|check|invalidate|recover`: shot state under 4 KB, locked, recoverable. Record outputs with `--deps`; when an input changes, everything built from it shows as stale.
+- `analyse PLATE --state SHOT_DIR`: camera move (locked, rotation, parallax or unknown with reasons), blur, exposure, solve type. Never guess a move it calls unknown.
+- `run JOB --state SHOT_DIR --blend F --frames 1-100 --pattern OUT/####.exr`, `resume JOB`, `job JOB`: headless Blender with timeout, log and verified frames; resume re-renders only missing, corrupt or stale frames.
+- `verify TARGET`: frames or video; missing, truncated, black, flicker.
+- `assets search|download`, `tidy PROJECT`, `doctor`, `package OUT.zip`.
+
+Blender scripts (`blender -b file.blend -P script.py -- args`, or exec through MCP): `probe_scene.py` (compact scene JSON), `setup_shot.py` (folders, camera, colour, render defaults, versioned save), `render_doctor.py` (what makes a render slow), `contact_sheet.py` (cheap preview sheet), `track_report.py` (solve trust: per-frame error, coverage over time, holdout tracks, self-check), `build_proxy.py` (walls and floors from tracked points with plate projection), `destruction.py` (partial fracture at the impact only), `import_asset.py`, `procedural_asset.py` (fallback assets with preview).
+
+Report tool JSON, not impressions. A tool saying success is not proof; check its numbers.
 
 ## Rules that never bend
 
-- Real meters. A 1.75 m human reference stays in the scene until the final render. Apply scale before modifiers and physics.
-- Match the real camera: same sensor width, focal length, frame rate and shutter as the plate.
-- Real scanned PBR materials. Base colour is sRGB, every other map is Non-Color. Roughness is never one flat value. Bevel hard edges.
-- Every light has a source you can point to in the plate. One dominant key.
-- Simulate what physics should drive. Animate what acts. Use stock elements for anything huge.
-- Same frame, same image: fixed seeds, frame-driven time, every simulation baked.
-- Render multilayer EXR sequences, never straight to a video file.
-- Fix one thing at a time and re-render only the affected frames.
-- Open and look at a render before saying anything about it. Never report done until `references/12-review-checklist.md` passes.
-- Keep an asset licence log from the first download.
+- Real meters; a 1.75 m reference stays until the final. Apply scale before modifiers and physics.
+- Match the real camera: sensor width, focal length, frame rate, shutter.
+- Scanned PBR: base colour sRGB, other maps Non-Color, no flat roughness, bevelled edges.
+- Every light has a source in the plate; one dominant key.
+- Simulate what physics drives, animate what acts, stock elements for anything huge.
+- Fixed seeds, frame-driven time, every simulation baked.
+- Multilayer EXR sequences, never straight to video. Fix one thing at a time; re-render only affected frames.
+- Look at a render before describing it. Never report done until `references/12-review-checklist.md` passes.
+- Log every asset licence from the first download.
 
-## Files: keep the project clean
+## Files
 
-Follow the layout in `references/15-project-structure.md` (numbered folders: `00_brief` to `09_deliver`, plus `scripts`, `logs`, `_review`, `_tmp`, `_archive`). In short:
+Layout in `references/15-project-structure.md`. Nothing in the project root but `README.md`. One script per step, edited in place, never `_v2` copies. Temp files in `_tmp/`, debug images in `_review/` replacing the last check. Never move files a job is using. End of session: `vfx.py tidy` (report), clear `_tmp/`, update `README.md`, report new files and disk used in 2 or 3 lines. Deleting anything else needs a yes.
 
-- Nothing in the project root except `README.md`. Pick the folder before writing a file.
-- One script per pipeline step, edited in place (`03_build_scene.py`), never copied as `_v2` or `_final`. Versions belong to .blend files and render folders.
-- Temp and converted files go to `_tmp/` and are deleted once the step is verified. Debug images go to `_review/` and replace the previous check.
-- Never move or rename files while a render, bake or scheduled job uses them.
-- End of session: run `scripts/tidy_project.py` (dry run), clear `_tmp/`, update `README.md`, report new files and disk used in 2 or 3 lines. Deleting anything else needs the user's yes.
+## Blender through MCP or scripts
 
-## Scripts (in `scripts/`, run inside Blender unless noted)
-
-- `probe_scene.py`: compact JSON summary of the scene. Use instead of listing objects.
-- `render_doctor.py`: read-only check of what makes a render slow, ranked, with quality risk per fix.
-- `setup_shot.py`: folders, units, fps, camera sensor and focal length, colour view, Cycles defaults per hardware tier, EXR output and passes, versioned save.
-- `contact_sheet.py`: renders chosen frames cheaply and tiles them into one image, restoring all settings.
-- `verify_output.py` (plain Python with ffmpeg): frame count, gaps, black frames, flicker spikes.
-- `track_report.py`: solve error, median and 95th percentile track error, tracks per frame, 3x3 spread, lifespans, flags.
-- `tidy_project.py` (plain Python): finds root clutter, temp files, script copies and byte-identical duplicates; deletes only with explicit flags.
-- `shot_state.py` (plain Python): the shot's small state file: show, set, done, result, check, recover.
-
-If the repository's `vfx_engine/` folder is available, also use: `analyse_footage.py` on every plate before tracking (shot type, blur, exposure, recommended solve) and `run_job.py` for every headless render or bake (timeout, log, verified outputs). Report the JSON results, not your impression.
-
-## Learning loop
-
-After each finished shot, add 1 to 3 lines to `lessons.md` (template in `templates/`): settings that worked, mistakes to avoid, preferences the user showed. This is how the skill gets better for each user without retraining.
-
-## Working with Blender through MCP or scripts
-
-- Confirm the target first: Blender version, open file, scene name. One writer per scene.
-- Live MCP edits only in the scene the user asked about. Long renders and batch jobs run headless (`blender -b file.blend -P script.py`) on a saved copy.
-- Restore any render settings a tool changed for a preview.
-- Measure evaluated geometry (after modifiers), never raw mesh data.
-- A tool saying "success" is not proof. After any render or bake, check the files exist, the frame count is right and the images open. Report each job as: job id, expected frames, frames found, output path, warnings.
-- Prefer the data API (`bpy.data`) over operators; when an operator needs a context, use `bpy.context.temp_override()`.
-- Save a new version of the .blend before any risky step, so a crash or a bad change can be rolled back.
+- Confirm Blender version, open file and scene first. One writer per scene.
+- Live MCP edits only in the scene asked about. Long renders and batches run headless through `vfx.py run` on a saved copy.
+- Restore render settings a preview changed. Measure evaluated geometry.
+- Prefer `bpy.data` over operators; use `bpy.context.temp_override()` when an operator needs context.
+- Save a new .blend version before risky steps.
 
 ## Token budget
 
-- Load one stage file at a time (table above). Never re-read a file already in context.
-- Machine state lives in `shot_state.py` (read `show`, a few lines). `shot-log.md` (template in `templates/`) is the human notes: append 3 to 5 lines per stage and read only the latest entry.
-- Inspect scenes with `scripts/probe_scene.py`, which returns compact JSON. Never dump full object or node lists.
-- Batch related Blender edits into one script call that returns only counts and errors.
-- Big results (object lists, logs, render stats): aggregate inside Blender or write to a temp JSON file and return its path. Page anything long.
-- Look at images only at checkpoints. Preview renders at 25 to 50 percent resolution with low samples. Prefer one contact sheet over many single frames.
-- Write long explanations to files; keep chat replies short.
+- One stage file at a time; never re-read a file already in context.
+- `vfx.py status` instead of re-inspecting; `shot-log.md` is human notes, read only its last entry.
+- Batch Blender edits into one call that returns counts and errors. Write big results to a file and return its path.
+- Images only at checkpoints: previews at 25 to 50 percent, one contact sheet instead of many frames.
+- Keep chat replies short; long explanations go to a file.
+
+## Learning loop
+
+After each finished shot, add 1 to 3 lines to `lessons.md` (template in `templates/`): what worked, what to avoid, the user's preferences.
