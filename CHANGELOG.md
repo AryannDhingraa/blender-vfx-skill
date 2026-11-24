@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.1 (2026-11-24)
+- Lessons from a handheld window shot: full solve when the camera travels even 1 m, window and room masks, forward-backward tracking at full res; Clip Editor frame gotcha; detached jobs instead of shell background jobs.
+
 ## 2.0.0 (2026-11-24)
 - One engine, `scripts/vfx.py` plus the `vfxlib` package, replaces shot_state.py, verify_output.py, tidy_project.py and the separate vfx_engine folder. Old commands map to `vfx.py state`, `verify`, `tidy`, `analyse`, `run`.
 - Footage: the camera move is only named with enough evidence (frames, features, consistent pairs); otherwise "unknown" with reasons. Decided from homography residuals, so results no longer change between OpenCV versions.

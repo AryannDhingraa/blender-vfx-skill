@@ -52,6 +52,7 @@ Film a printed checkerboard at the exact focal length, filling the frame at seve
 - **Moving props.** Object track, or match position and rotation by hand on key frames.
 - **Fast action.** Shot in slow motion? Track at that speed, retime at the end.
 - **Rolling shutter skew.** Track slower sections only, or use Cycles rolling shutter to match the CG.
+- **Handheld behind a window.** Even 1 m of camera travel gives real parallax on roofs 20 to 30 m away: full solve, not Tripod. Mask the window frame, room and fan (bright view area, eroded), track at full resolution with a forward-backward check, keep long tracks, then validate with proxy cards at several depths across the whole shot.
 
 ## Record
 

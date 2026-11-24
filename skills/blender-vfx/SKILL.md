@@ -89,7 +89,8 @@ Layout in `references/15-project-structure.md`. Nothing in the project root but 
 - Confirm Blender version, open file and scene first. One writer per scene.
 - Live MCP edits only in the scene asked about. Long renders and batches run headless through `vfx.py run` on a saved copy.
 - Restore render settings a preview changed. Measure evaluated geometry.
-- Prefer `bpy.data` over operators; use `bpy.context.temp_override()` when an operator needs context.
+- Prefer `bpy.data` over operators; use `bpy.context.temp_override()` when an operator needs context. Clip Editor operators read `space.clip_user.frame_current`, not `scene.frame_current`: set both.
+- Never start long jobs with `&` or nohup from an agent shell; it dies when the call ends. Use `vfx.py run`/`resume`, or a detached launcher (new session, log, pid and exit files) with checkpoints.
 - Save a new .blend version before risky steps.
 
 ## Token budget
