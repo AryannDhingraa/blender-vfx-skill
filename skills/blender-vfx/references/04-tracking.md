@@ -53,6 +53,9 @@ Film a printed checkerboard at the exact focal length, filling the frame at seve
 - **Fast action.** Shot in slow motion? Track at that speed, retime at the end.
 - **Rolling shutter skew.** Track slower sections only, or use Cycles rolling shutter to match the CG.
 - **Handheld behind a window.** Even 1 m of camera travel gives real parallax on roofs 20 to 30 m away: full solve, not Tripod. Mask the window frame, room and fan (bright view area, eroded), track at full resolution with a forward-backward check, keep long tracks, then validate with proxy cards at several depths across the whole shot.
+- **Smoothing a solved camera slides.** Smoothing camera centres added up to 7 px error on fast moves. Render far CG with the raw solve and only near-lens CG (glass, a body at the window) with a smoothed camera, then comp the two layers.
+- **COLMAP on small-baseline handheld video.** Lower `Mapper.init_min_tri_angle` (1.5) and `tri_min_angle` / `filter_min_tri_angle` (0.3) or it registers only a few frames. Anchor and validate only with strong points (error < 0.8 px, seen in 40+ frames); short tracks wobble.
+- **Window matte.** Keep only the bright regions that contain tracked outdoor points (connected components), so a sunlit wall never takes CG.
 
 ## Record
 

@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2.0.1 (2026-11-24)
+- Two-camera split instead of smoothing, COLMAP small-baseline settings, strong-point anchors, point-seeded window matte; plate-projection copy for destroyed buildings, mixed-size capped fracture, volumes outside the camera; Blender 5.1 EXR pass and retargeting gotchas.
 - Lessons from a handheld window shot: full solve when the camera travels even 1 m, window and room masks, forward-backward tracking at full res; Clip Editor frame gotcha; detached jobs instead of shell background jobs.
 
 ## 2.0.0 (2026-11-24)

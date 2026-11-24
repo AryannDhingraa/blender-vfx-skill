@@ -91,6 +91,8 @@ Layout in `references/15-project-structure.md`. Nothing in the project root but 
 - Restore render settings a preview changed. Measure evaluated geometry.
 - Prefer `bpy.data` over operators; use `bpy.context.temp_override()` when an operator needs context. Clip Editor operators read `space.clip_user.frame_current`, not `scene.frame_current`: set both.
 - Never start long jobs with `&` or nohup from an agent shell; it dies when the call ends. Use `vfx.py run`/`resume`, or a detached launcher (new session, log, pid and exit files) with checkpoints.
+- Blender 5.1: a render saved as multilayer EXR may hold only Combined; write passes through a compositor File Output node, or put depth haze in the shaders (Camera Data > View Distance). Set `media_type = 'MULTI_LAYER_IMAGE'` before the file format.
+- Retargeting Mixamo onto another rig: compute local bases with explicit parent maths (never set pose bones and update the depsgraph inside the bake loop) and align rest poses joint to joint, not by bone tails.
 - Save a new .blend version before risky steps.
 
 ## Token budget
