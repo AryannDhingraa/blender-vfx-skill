@@ -356,7 +356,8 @@ class Hub:
         now = time.time()
         recent = [c for t, c in self.cpu if now - t <= 60]
         lat = sorted(self.latency)
-        cost = [c for t, c, _ in self.sampler.cost if now - t <= 600]
+        cost = [c for t, c, _ in self.sampler.cost[1:] if now - t <= 600]  # steady state: first reading loads libraries
+        warm = self.sampler.cost[0][1] if self.sampler.cost else None
 
         def pct(p):
             return round(lat[min(len(lat) - 1, int(p * len(lat)))], 3) if lat else None
@@ -364,6 +365,7 @@ class Hub:
                 "poll_s": POLL_S, "latency_p50_s": pct(0.5), "latency_p95_s": pct(0.95),
                 "latency_max_s": round(lat[-1], 3) if lat else None, "clients": len(self.clients),
                 "telemetry_every_s": self.telemetry_s, "telemetry_cpu_s_per_sample": round(sum(cost) / len(cost), 4) if cost else None,
+                "telemetry_first_sample_cpu_s": round(warm, 4) if warm is not None else None,
                 "discover_every_s": self.discover_s, "discover_cost": self.discover_cost, "seq": self.seq}
 
     def shot_dir(self, sid):

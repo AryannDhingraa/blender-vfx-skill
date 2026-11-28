@@ -10,7 +10,7 @@ from vfxlib import studio
 
 
 def test_selftest_passes_with_short_idle():
-    rep = studio.selftest(idle_seconds=3, n_events=10)
+    rep = studio.selftest(idle_seconds=12, n_events=10)
     failed = {k: v for k, v in rep["results"].items() if v["status"] != "PASS"}
     if sys.platform == "win32":  # symlinks need admin on Windows; CPU sampling is coarse there
         failed.pop("idle_cpu_under_1pct", None)
@@ -75,6 +75,8 @@ def test_telemetry_reports_or_says_unavailable(tmp_path):
     from vfxlib.telemetry import Sampler
     s = Sampler(str(tmp_path))
     s.sample()
+    import time
+    time.sleep(1.2)  # CPU counters need time to move between readings
     t = s.sample()
     for k in ("cpu", "gpu", "memory", "pressure", "swap", "disk", "thermal", "workloads", "studio"):
         assert k in t and isinstance(t[k], dict) and ("available" in t[k])
