@@ -40,15 +40,27 @@ def na(why):
     return {"available": False, "why": why}
 
 
-# ---------- CPU ticks ----------
+# ---------- direct system calls (loaded once) ----------
+_LIB = {}
+
+
+def _libc():
+    if "c" not in _LIB:
+        import ctypes
+        lib = ctypes.CDLL("/usr/lib/libSystem.dylib")
+        lib.mach_host_self.restype = ctypes.c_uint
+        _LIB["c"] = lib
+        _LIB["host"] = lib.mach_host_self()
+    return _LIB["c"]
+
+
 def _mac_ticks():
     try:
         import ctypes
-        libc = ctypes.CDLL("/usr/lib/libSystem.dylib")
-        libc.mach_host_self.restype = ctypes.c_uint
+        libc = _libc()
         info = (ctypes.c_uint32 * 4)()
         cnt = ctypes.c_uint32(4)
-        if libc.host_statistics(libc.mach_host_self(), 3, ctypes.byref(info), ctypes.byref(cnt)) != 0:
+        if libc.host_statistics(_LIB["host"], 3, ctypes.byref(info), ctypes.byref(cnt)) != 0:  # HOST_CPU_LOAD_INFO
             return None
         user, system, idle, nice = list(info)
         return user + system + nice, user + system + idle + nice
@@ -66,42 +78,91 @@ def _linux_ticks():
         return None
 
 
+def _win_ticks():
+    try:
+        import ctypes
+        ft = [ctypes.c_ulonglong() for _ in range(3)]
+        if not ctypes.windll.kernel32.GetSystemTimes(*(ctypes.byref(x) for x in ft)):
+            return None
+        idle, kernel, user = (x.value for x in ft)  # kernel time includes idle time
+        return kernel + user - idle, kernel + user
+    except Exception:
+        return None
+
+
 # ---------- macOS ----------
-def _sysctl(name):
-    out = _run(["sysctl", "-n", name])
-    return out.strip() if out else None
+def _sysctl_val(name, ctype):
+    import ctypes
+    v = ctype()
+    size = ctypes.c_size_t(ctypes.sizeof(v))
+    if _libc().sysctlbyname(name.encode(), ctypes.byref(v), ctypes.byref(size), None, ctypes.c_size_t(0)) != 0:
+        return None
+    return v
+
+
+def _vm_stats64():
+    import ctypes
+    u32, u64 = ctypes.c_uint32, ctypes.c_uint64
+
+    class VM(ctypes.Structure):  # struct vm_statistics64 (mach/vm_statistics.h)
+        _fields_ = [("free", u32), ("active", u32), ("inactive", u32), ("wire", u32), ("zero_fill", u64),
+                    ("reactivations", u64), ("pageins", u64), ("pageouts", u64), ("faults", u64), ("cow_faults", u64),
+                    ("lookups", u64), ("hits", u64), ("purges", u64), ("purgeable", u32), ("speculative", u32),
+                    ("decompressions", u64), ("compressions", u64), ("swapins", u64), ("swapouts", u64),
+                    ("compressor", u32), ("throttled", u32), ("external", u32), ("internal", u32),
+                    ("uncompressed_in_compressor", u64)]
+    vm = VM()
+    cnt = ctypes.c_uint32(ctypes.sizeof(VM) // 4)
+    if _libc().host_statistics64(_LIB["host"], 4, ctypes.byref(vm), ctypes.byref(cnt)) != 0:  # HOST_VM_INFO64
+        return None
+    return vm
 
 
 def _mac_memory():
-    total = _sysctl("hw.memsize")
-    vm = _run(["vm_stat"])
-    if not total or not vm:
-        return na("vm_stat or sysctl unavailable")
-    page = int(re.search(r"page size of (\d+)", vm).group(1)) if "page size of" in vm else 16384
-    pages = {k.strip().strip('"'): int(v.strip().rstrip(".")) for k, v in re.findall(r"^([^:]+):\s+(\d+)\.?$", vm, re.M)}
-    app = pages.get("Anonymous pages", 0) - pages.get("Pages purgeable", 0)
-    used = (app + pages.get("Pages wired down", 0) + pages.get("Pages occupied by compressor", 0)) * page
-    total = int(total)
-    return {"available": True, "total_gb": round(total / 2**30, 1), "used_gb": round(used / 2**30, 1),
-            "used_pct": round(100.0 * used / total, 1), "unified": True,
-            "method": "app + wired + compressed pages (Activity Monitor's Memory Used)"}
+    try:
+        import ctypes
+        total = _sysctl_val("hw.memsize", ctypes.c_uint64)
+        page = _sysctl_val("hw.pagesize", ctypes.c_uint64) or _sysctl_val("hw.pagesize", ctypes.c_uint32)
+        vm = _vm_stats64()
+        if not total or not page or vm is None:
+            return na("memory counters not readable")
+        used = (max(0, vm.internal - vm.purgeable) + vm.wire + vm.compressor) * page.value
+        total = total.value
+        if not 0 < used <= total:
+            return na("memory counters gave an impossible value")
+        return {"available": True, "total_gb": round(total / 2**30, 1), "used_gb": round(used / 2**30, 1),
+                "used_pct": round(100.0 * used / total, 1), "unified": True,
+                "method": "app + wired + compressed pages (Activity Monitor's Memory Used)"}
+    except Exception as e:
+        return na(f"memory counters not readable ({type(e).__name__})")
 
 
 def _mac_pressure():
-    v = _sysctl("kern.memorystatus_vm_pressure_level")
-    if v is None or not v.isdigit():
-        return na("pressure level not readable")
-    return {"available": True, "level": PRESSURE.get(int(v), f"level {v}")}
+    try:
+        import ctypes
+        v = _sysctl_val("kern.memorystatus_vm_pressure_level", ctypes.c_int)
+        if v is None:
+            return na("pressure level not readable")
+        return {"available": True, "level": PRESSURE.get(v.value, f"level {v.value}")}
+    except Exception as e:
+        return na(f"pressure level not readable ({type(e).__name__})")
 
 
 def _mac_swap():
-    v = _sysctl("vm.swapusage")
-    m = re.search(r"total = ([\d.]+)M\s+used = ([\d.]+)M", v or "")
-    if not m:
-        return na("vm.swapusage not readable")
-    total, used = float(m.group(1)) / 1024, float(m.group(2)) / 1024
-    return {"available": True, "total_gb": round(total, 2), "used_gb": round(used, 2),
-            "used_pct": round(100 * used / total, 1) if total else 0.0}
+    try:
+        import ctypes
+
+        class XSW(ctypes.Structure):  # struct xsw_usage (sys/sysctl.h)
+            _fields_ = [("total", ctypes.c_uint64), ("avail", ctypes.c_uint64), ("used", ctypes.c_uint64),
+                        ("pagesize", ctypes.c_uint32), ("encrypted", ctypes.c_int32)]
+        x = _sysctl_val("vm.swapusage", XSW)
+        if x is None:
+            return na("vm.swapusage not readable")
+        total, used = x.total / 2**30, x.used / 2**30
+        return {"available": True, "total_gb": round(total, 2), "used_gb": round(used, 2),
+                "used_pct": round(100 * used / total, 1) if total else 0.0}
+    except Exception as e:
+        return na(f"swap not readable ({type(e).__name__})")
 
 
 def _mac_gpu():
@@ -121,23 +182,42 @@ def _mac_gpu():
 def _mac_thermal():
     try:
         import ctypes
-        objc = ctypes.cdll.LoadLibrary("/usr/lib/libobjc.A.dylib")
-        ctypes.cdll.LoadLibrary("/System/Library/Frameworks/Foundation.framework/Foundation")
-        objc.objc_getClass.restype = ctypes.c_void_p
-        objc.objc_getClass.argtypes = [ctypes.c_char_p]
-        objc.sel_registerName.restype = ctypes.c_void_p
-        objc.sel_registerName.argtypes = [ctypes.c_char_p]
-        send = objc.objc_msgSend
-        send.restype = ctypes.c_void_p
-        send.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
-        pi = send(objc.objc_getClass(b"NSProcessInfo"), objc.sel_registerName(b"processInfo"))
-        send.restype = ctypes.c_long
-        state = send(pi, objc.sel_registerName(b"thermalState"))
-        send.restype = ctypes.c_void_p
+        if "objc" not in _LIB:
+            objc = ctypes.cdll.LoadLibrary("/usr/lib/libobjc.A.dylib")
+            ctypes.cdll.LoadLibrary("/System/Library/Frameworks/Foundation.framework/Foundation")
+            objc.objc_getClass.restype = ctypes.c_void_p
+            objc.objc_getClass.argtypes = [ctypes.c_char_p]
+            objc.sel_registerName.restype = ctypes.c_void_p
+            objc.sel_registerName.argtypes = [ctypes.c_char_p]
+            send = ctypes.CFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(("objc_msgSend", objc))
+            send_long = ctypes.CFUNCTYPE(ctypes.c_long, ctypes.c_void_p, ctypes.c_void_p)(("objc_msgSend", objc))
+            pi = send(objc.objc_getClass(b"NSProcessInfo"), objc.sel_registerName(b"processInfo"))
+            _LIB["objc"] = (send_long, pi, objc.sel_registerName(b"thermalState"))
+        send_long, pi, sel = _LIB["objc"]
+        state = send_long(pi, sel)
         return {"available": True, "state": THERMAL.get(state, f"state {state}"),
                 "temperature": "not available without elevated access", "method": "NSProcessInfo.thermalState"}
     except Exception as e:
         return na(f"thermal state not readable ({type(e).__name__})")
+
+
+def _win_memory():
+    try:
+        import ctypes
+
+        class MS(ctypes.Structure):
+            _fields_ = [("len", ctypes.c_ulong), ("load", ctypes.c_ulong), ("total", ctypes.c_ulonglong),
+                        ("avail", ctypes.c_ulonglong), ("total_page", ctypes.c_ulonglong), ("avail_page", ctypes.c_ulonglong),
+                        ("total_virt", ctypes.c_ulonglong), ("avail_virt", ctypes.c_ulonglong), ("ext", ctypes.c_ulonglong)]
+        m = MS()
+        m.len = ctypes.sizeof(MS)
+        if not ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(m)):
+            return na("GlobalMemoryStatusEx failed")
+        used = m.total - m.avail
+        return {"available": True, "total_gb": round(m.total / 2**30, 1), "used_gb": round(used / 2**30, 1),
+                "used_pct": round(100.0 * used / m.total, 1), "unified": False, "method": "GlobalMemoryStatusEx"}
+    except Exception as e:
+        return na(f"memory not readable ({type(e).__name__})")
 
 
 # ---------- Linux ----------
@@ -197,8 +277,12 @@ class Sampler:
     ioreg, ps), so callers sample every few seconds at most. Overhead is measured, including the
     CPU used by those commands."""
 
+    SLOW_EVERY = 3  # GPU (ioreg) and the process list (ps) run on every third sample
+
     def __init__(self, disk_path="/"):
         self.disk_path = disk_path
+        self.n = 0
+        self.slow = {}
         self.mac = sys.platform == "darwin"
         self.prev_ticks = None
         self.prev_own = None
@@ -208,7 +292,11 @@ class Sampler:
         self.prev_ticks = (time.time(), t) if t else None
 
     def _ticks(self):
-        return _mac_ticks() if self.mac else _linux_ticks() if sys.platform.startswith("linux") else None
+        if self.mac:
+            return _mac_ticks()
+        if sys.platform.startswith("linux"):
+            return _linux_ticks()
+        return _win_ticks() if sys.platform == "win32" else None
 
     def _own_cpu(self):
         """CPU seconds of this process plus the commands it ran (vm_stat, ioreg, ps)."""
@@ -234,11 +322,19 @@ class Sampler:
         elif ticks:
             cpu = na("measuring, ready in a second")
             self.prev_ticks = (now, ticks)
+        slow_now = self.n % self.SLOW_EVERY == 0
+        self.n += 1
         if self.mac:
-            mem, pressure, swap, gpu, thermal = _mac_memory(), _mac_pressure(), _mac_swap(), _mac_gpu(), _mac_thermal()
+            mem, pressure, swap, thermal = _mac_memory(), _mac_pressure(), _mac_swap(), _mac_thermal()
+            if slow_now:
+                self.slow["gpu"] = dict(_mac_gpu(), t=round(now, 1))
+            gpu = self.slow.get("gpu") or na("first GPU reading pending")
         elif sys.platform.startswith("linux"):
             (mem, swap), pressure = _linux_memory(), _linux_pressure()
             gpu, thermal = na("no GPU readings on this machine"), na("no thermal readings on this machine")
+        elif sys.platform == "win32":
+            mem, swap = _win_memory(), na("not read on Windows yet")
+            pressure, gpu, thermal = na("not read on Windows yet"), na("not read on Windows yet"), na("not read on Windows yet")
         else:
             mem = swap = pressure = gpu = thermal = na(f"not supported on {sys.platform}")
         try:
@@ -247,7 +343,9 @@ class Sampler:
                     "total_gb": round(du.total / 2**30, 1), "free_pct": round(100.0 * du.free / du.total, 1)}
         except OSError as e:
             disk = na(f"cannot read free space ({e.strerror})")
-        work, own_mem = _workloads(os.getpid())
+        if slow_now or "work" not in self.slow:
+            self.slow["work"] = _workloads(os.getpid()) if sys.platform != "win32" else (na("process list not read on Windows yet"), None)
+        work, own_mem = self.slow["work"]
         own_cpu_now = self._own_cpu()
         studio = {"available": True, "rss_mb": own_mem["rss_mb"] if own_mem else None}
         if self.prev_own:

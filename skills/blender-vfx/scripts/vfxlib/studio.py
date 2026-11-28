@@ -743,7 +743,8 @@ def selftest(idle_seconds=60, n_events=20, report=None):
             idle = (own() - c0) / (time.time() - w0) * 100.0
             check("idle_cpu_under_1pct", idle < 1.0, round(idle, 3))
             tel = srv.hub.telemetry or {}
-            need = ["cpu", "memory", "disk"] + (["pressure", "swap", "thermal"] if sys.platform == "darwin" else [])
+            need = {"darwin": ["cpu", "memory", "disk", "pressure", "swap", "thermal"], "win32": ["cpu", "memory", "disk"]}.get(
+                sys.platform, ["cpu", "memory", "disk"] if sys.platform.startswith("linux") else ["disk"])
             check("telemetry_readings", all((tel.get(k) or {}).get("available") for k in need),
                   {k: ({kk: vv for kk, vv in (tel.get(k) or {}).items() if kk != "method"}) for k in
                    ("cpu", "gpu", "memory", "pressure", "swap", "disk", "thermal")})

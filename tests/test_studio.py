@@ -84,6 +84,14 @@ def test_telemetry_reports_or_says_unavailable(tmp_path):
     if sys.platform == "darwin":  # real readings on macOS (CI runners and the user's Mac)
         for k in ("cpu", "memory", "pressure", "swap", "thermal"):
             assert t[k]["available"], (k, t[k])
+        m = t["memory"]
+        assert 1 < m["total_gb"] < 4096 and 0 < m["used_pct"] <= 100 and m["unified"] is True, m
+        assert 0 <= t["cpu"]["busy_pct"] <= 100 and t["pressure"]["level"] in ("normal", "warning", "critical"), t
+        assert t["swap"]["used_gb"] <= t["swap"]["total_gb"] + 0.01 and t["thermal"]["state"] in ("nominal", "fair", "serious", "critical")
+        costs = [s.sample()["sample_cpu_s"] for _ in range(6)]  # fast samples plus two slow ones
+        assert sum(costs) / len(costs) < 0.03, costs  # under 0.3% at one sample every 10 s
+    if sys.platform == "win32":
+        assert t["cpu"]["available"] and t["memory"]["available"], t
     if sys.platform.startswith("linux"):
         assert t["cpu"]["available"] and t["memory"]["available"]
 
