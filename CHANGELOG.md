@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.0 (2026-11-28)
+- Studio viewer redesigned for filmmakers: Overview, Activity with Explain this change, Images, Machine, Outside changes and Alerts; Filmmaker and VFX Artist display modes over the same records; plain-language titles from a fixed local table (`vfxlib/plain.py`); agents can add `--title`, `--purpose` and `--component` to any command or note.
+- Machine readings (`vfxlib/telemetry.py`): CPU, GPU busy, unified memory, memory pressure, swap, free storage, thermal state, Blender and ffmpeg processes, the viewer's own cost. Unprivileged methods only; anything unreadable is shown as unavailable with the reason.
+- Alerts: deduplicated, resolve when the condition clears (failed or interrupted steps until the same step passes, stalled runs, sustained memory pressure, low storage, thermal state, finished renders). Optional browser notifications.
+- Reliability: one event log per machine, stream sequence numbers with catch-up, faster discovery of new shots, secret-looking scripts not stored and secrets redacted from events, engine records and agent notes shown apart. Preflight records its own result in the shot log.
+
 ## 2.1.0 (2026-11-28)
 - `vfx.py preflight`: PASS, FAIL, UNKNOWN or NOT_APPLICABLE per item (engine version and commit, machine, Blender, packages, ffmpeg, state write, shot log, personal overrides, settings, hardware). Saves one report per machine, so a Linux VM and the Mac are checked separately. Fails loudly when the engine is missing or settings are invalid; learning and research default to off.
 - Event log per shot (`state/events.jsonl`): engine commands that change a shot write a start and an end event themselves; lines are CRC-checked and capped at 4 KB; one rotated generation is kept. A start with no end is shown as interrupted once its process is gone (PID reuse checked), or after its deadline on another machine. `vfx.py event note|show|reconcile|scan`.

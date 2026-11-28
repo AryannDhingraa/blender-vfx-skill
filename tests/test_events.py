@@ -22,15 +22,16 @@ def test_append_read_and_checksum(tmp_path):
     shot = str(tmp_path / "s")
     for i in range(5):
         ev.append(shot, "note", summary=f"n{i}")
-    evs, off, bad = ev.read(shot)
+    log = ev.paths(shot)["log"]
+    evs, off, bad = ev.read_file(log)
     assert [e["summary"] for e in evs] == [f"n{i}" for i in range(5)] and bad == 0
-    with open(ev.paths(shot)["log"], "ab") as f:
+    with open(log, "ab") as f:
         f.write(b'{"kind":"note","summary":"forged","crc":1}\n')  # bad crc
         f.write(b"not json\n")
         f.write(b'{"kind":"note","summary":"torn"')  # unterminated: still being written
-    evs2, off2, bad2 = ev.read(shot, off)
+    evs2, off2, bad2 = ev.read_file(log, off)
     assert evs2 == [] and bad2 == 2
-    evs3, _, _ = ev.read(shot, off2)
+    evs3, _, _ = ev.read_file(log, off2)
     assert evs3 == []  # torn line waits until it is complete
 
 
@@ -169,3 +170,39 @@ def test_machine_kind():
     assert ev.machine_kind("darwin", "/Users/a", "mbp") == "mac"
     assert ev.machine_kind("linux", "/sessions/abc", "x") == "cowork-vm"
     assert ev.machine_kind("linux", "/home/u", "box") == "linux"
+
+
+def test_each_machine_writes_its_own_log_and_reads_merge(tmp_path, monkeypatch):
+    shot = str(tmp_path / "s")
+    ev.append(shot, "note", summary="here")
+    monkeypatch.setattr(ev, "machine_kind", lambda *a, **k: "cowork-vm")
+    time.sleep(0.01)
+    ev.append(shot, "note", summary="vm")
+    names = sorted(os.path.basename(p) for p in ev.log_files(shot))
+    assert len(names) == 2 and "events.cowork-vm.jsonl" in names
+    assert [e["summary"] for e in ev.read(shot)[0]] == ["here", "vm"]
+    legacy = os.path.join(shot, "state", "events.jsonl")  # 2.1.0 single log is still read
+    with open(legacy, "w") as f:
+        f.write(ev._line({"v": 1, "id": "x", "t": 1.0, "kind": "note", "summary": "old"}) + "\n")
+    assert ev.read(shot)[0][0]["summary"] == "old"
+
+
+def test_secrets_never_stored_or_logged(tmp_path):
+    shot = str(tmp_path / "s")
+    script = tmp_path / "upload.py"
+    script.write_text('import os\nAPI_KEY = "sk-ant-abcdefghijklmnopqrstuvwxyz123456"\n')
+    e = ev.snapshot(shot, str(script))
+    assert e["stored"] is False and "secret" in e["detail"] and not os.path.exists(ev.paths(shot)["snaps"] + f"/{e['sha']}.txt")
+    clean = tmp_path / "comp.py"
+    clean.write_text("token_count = 3\npassword_field = None\n")
+    assert ev.snapshot(shot, str(clean))["stored"] is True
+    n = ev.append(shot, "note", summary="using ghp_" + "a" * 36 + " now", args=["--key", 'password="hunter22hunter"'])
+    assert "ghp_" not in json.dumps(n) and "hunter22" not in json.dumps(n) and "[redacted]" in n["summary"]
+
+
+def test_agent_description_flags_any_position(tmp_path):
+    shot = str(tmp_path / "s")
+    assert run("--title", "Set up the benchmark", "state", "init", shot, "--purpose", "start Iris benchmark",
+               "--component", "shot record")[0] == 0
+    start = next(e for e in ev.read(shot)[0] if e["kind"] == "op.start")
+    assert (start["title"], start["purpose"], start["component"]) == ("Set up the benchmark", "start Iris benchmark", "shot record")

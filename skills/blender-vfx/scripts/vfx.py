@@ -77,7 +77,8 @@ def cmd_event(a):
             return out({"ok": False, "error": "event note needs text"}, 2)
         if a.status and a.status not in ev.STATUSES:
             return out({"ok": False, "error": f"status must be one of {ev.STATUSES}"}, 2)
-        e = ev.append(a.dir, "note", source=a.source, summary=" ".join(a.text), status=a.status)
+        e = ev.append(a.dir, "note", source=a.source, summary=" ".join(a.text), status=a.status,
+                      title=a.title, purpose=a.purpose, component=a.component)
         return out({"ok": True, "id": e["id"]})
     if a.op == "reconcile":
         return out({"ok": True, "interrupted": ev.reconcile(a.dir)})
@@ -104,6 +105,9 @@ def cmd_snapshot(a):
     if not os.path.isfile(a.file):
         return out({"ok": False, "error": f"not a file: {a.file}"}, 2)
     e = ev.snapshot(a.dir, a.file, a.label)
+    if a.title or a.purpose or a.component:
+        ev.append(a.dir, "note", source="snapshot", summary=f"About {e['label']}", title=a.title, purpose=a.purpose,
+                  component=a.component, ref=e["id"])
     return out({"ok": True, "sha": e["sha"], "stored": e.get("stored"), "added": e.get("added"), "removed": e.get("removed")})
 
 
@@ -116,7 +120,7 @@ def cmd_studio(a):
         return out(rep, 0 if rep["ok"] else 1)
     if not a.root:
         return out({"ok": False, "error": "studio needs --root PROJECTS_FOLDER"}, 2)
-    return studio.serve(a.root, a.port, a.open)
+    return studio.serve(a.root, a.port, a.open, a.telemetry_seconds)
 
 
 def cmd_state(a):
@@ -280,7 +284,15 @@ def cmd_package(a):
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="vfx.py", description="blender-vfx engine " + __version__)
     ap.add_argument("--version", action="version", version=__version__)
+    ap.add_argument("--title", help="short plain-language title for this step, shown in the Studio")
+    ap.add_argument("--purpose", help="why this step is being done (the agent's own words)")
+    ap.add_argument("--component", help="what it affects, e.g. 'Iris glass material' or 'compositor'")
     sub = ap.add_subparsers(dest="cmd", required=True)
+    desc = argparse.ArgumentParser(add_help=False)  # the same three flags also work after the command
+    for f in ("--title", "--purpose", "--component"):
+        desc.add_argument(f, default=argparse.SUPPRESS)
+    _add = sub.add_parser
+    sub.add_parser = lambda *x, **k: _add(*x, parents=[desc], **k)
 
     p = sub.add_parser("doctor"); p.add_argument("--blender"); p.set_defaults(fn=cmd_doctor)
     p = sub.add_parser("preflight"); p.add_argument("--blender"); p.add_argument("--root"); p.add_argument("--shot")
@@ -293,7 +305,9 @@ def main(argv=None):
     p.set_defaults(fn=cmd_snapshot)
     p = sub.add_parser("studio"); p.add_argument("--root"); p.add_argument("--port", type=int, default=8765)
     p.add_argument("--open", action="store_true"); p.add_argument("--selftest", action="store_true")
-    p.add_argument("--idle-seconds", type=float, default=60); p.add_argument("--report"); p.set_defaults(fn=cmd_studio)
+    p.add_argument("--idle-seconds", type=float, default=60); p.add_argument("--report")
+    p.add_argument("--telemetry-seconds", type=float, default=10.0, help="machine readings interval; 0 turns them off")
+    p.set_defaults(fn=cmd_studio)
     p = sub.add_parser("status"); p.add_argument("dir"); p.set_defaults(fn=cmd_status)
 
     p = sub.add_parser("state")
@@ -366,7 +380,8 @@ def _logged(a, shot, argv):
     signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))  # still write the end event on a polite kill
     name = a.cmd + (f" {a.op}" if hasattr(a, "op") else "")
     args = [ev.rel(shot, x) if os.path.isabs(x) else x for x in argv]
-    with ev.Op(shot, name, args=args, timeout=getattr(a, "timeout", None)) as o:
+    with ev.Op(shot, name, args=args, timeout=getattr(a, "timeout", None), title=a.title, purpose=a.purpose,
+               component=a.component) as o:
         common.out.last = None
         code = a.fn(a)
         res = common.out.last if isinstance(common.out.last, dict) else {}

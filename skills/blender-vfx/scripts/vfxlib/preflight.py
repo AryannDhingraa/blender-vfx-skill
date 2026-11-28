@@ -154,11 +154,13 @@ def run(blender=None, root=None, shot=None, require_native=False):
     if shot:
         from . import events as ev
         try:
-            ev.append(shot, "note", source="preflight", summary=f"preflight on {kind}")
+            lp = ev.paths(shot)["log"]
+            os.makedirs(os.path.dirname(lp), exist_ok=True)
+            os.close(os.open(lp, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o644))  # can append, writes nothing
             evs, _, bad = ev.read(shot)
-            add("shot_events", "PASS" if evs and not bad else "FAIL", {"shot": shot, "events": len(evs), "bad_lines": bad})
+            add("shot_events", "PASS" if not bad else "FAIL", {"shot": shot, "events": len(evs), "bad_lines": bad})
         except Exception as e:
-            add("shot_events", "FAIL", f"cannot write {shot}/state/events.jsonl: {e}")
+            add("shot_events", "FAIL", f"cannot write the shot's event log: {e}")
     else:
         add("shot_events", "NOT_APPLICABLE", "no --shot given")
     profs = _profiles(root, shot)
@@ -170,6 +172,10 @@ def run(blender=None, root=None, shot=None, require_native=False):
     add("hardware", "PASS", {k: m.get(k) for k in ("tier", "ram_gb", "render_memory_gb", "gpus", "texture_res") if k in m})
     must = ["engine", "state_write_test", "settings"] + (["blender", "machine"] if native or require_native else [])
     ok = all(i["status"] == "PASS" for i in items if i["item"] in must)
+    if shot and any(i["item"] == "shot_events" and i["status"] == "PASS" for i in items):
+        from . import events as ev
+        ev.append(shot, "note", source="preflight", summary=f"preflight on {kind}", status="PASS" if ok else "FAIL",
+                  detail=[f"{i['item']}: {i['status']}" for i in items if i["status"] not in ("PASS", "NOT_APPLICABLE")] or None)
     return {"ok": ok, "machine": kind, "engine": __version__, "commit": commit, "time": round(time.time(), 1),
             "items": items}
 

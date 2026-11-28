@@ -61,3 +61,47 @@ def test_state_has_no_token_and_derives_ops(tmp_path):
     finally:
         srv.hub.stop.set()
         srv.shutdown()
+
+
+def test_plain_words_cover_logged_ops():
+    from vfxlib import plain
+    for op in ("state init", "state record", "analyse", "verify", "run", "resume", "assets download", "tidy", "preflight", "snapshot"):
+        title, what, effect, manual = plain.describe(op)
+        assert title and what and not title.startswith("Technical step")
+    assert plain.describe("frobnicate")[0].startswith("Technical step")
+
+
+def test_telemetry_reports_or_says_unavailable(tmp_path):
+    from vfxlib.telemetry import Sampler
+    s = Sampler(str(tmp_path))
+    s.sample()
+    t = s.sample()
+    for k in ("cpu", "gpu", "memory", "pressure", "swap", "disk", "thermal", "workloads", "studio"):
+        assert k in t and isinstance(t[k], dict) and ("available" in t[k])
+        if not t[k]["available"]:
+            assert t[k]["why"]
+    assert t["disk"]["available"] and t["sample_cpu_s"] < 1.0
+    if sys.platform == "darwin":  # real readings on macOS (CI runners and the user's Mac)
+        for k in ("cpu", "memory", "pressure", "swap", "thermal"):
+            assert t[k]["available"], (k, t[k])
+    if sys.platform.startswith("linux"):
+        assert t["cpu"]["available"] and t["memory"]["available"]
+
+
+def test_alerts_dedupe_and_resolve():
+    a = studio.Alerts(started=0)
+    ops = [{"op": "verify", "op_id": "1", "state": "FAIL", "t": 10, "errors": ["missing frames 3-4"]}]
+    tel = {"disk": {"available": True, "free_pct": 4.0, "free_gb": 12, "path": "/x"}, "pressure": {"available": True, "level": "normal"}}
+    for now in (100, 105, 110):
+        a.update([("s", ops)], tel, now, "/")
+    act = a.list()["active"]
+    assert len(act) == 2 and {x["key"] for x in act} == {"op:s:1", "disk-low"} and all(x["count"] == 1 for x in act)
+    ops.append({"op": "verify", "op_id": "2", "state": "PASS", "t": 20})
+    tel["disk"]["free_pct"], tel["disk"]["free_gb"] = 40.0, 400
+    a.update([("s", ops)], tel, 120, "/")
+    assert a.list()["active"] == [] and len(a.list()["recent"]) == 2
+    tel["pressure"]["level"] = "warning"
+    a.update([("s", ops)], tel, 130, "/")
+    assert not a.list()["active"]  # pressure must last 60 s before it alerts
+    a.update([("s", ops)], tel, 195, "/")
+    assert a.list()["active"][0]["key"] == "memory-pressure"

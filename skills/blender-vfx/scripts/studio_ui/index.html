@@ -3,46 +3,44 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>VFX Studio (read-only)</title>
+<title>VFX Studio</title>
+<link rel="icon" href="data:,">
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-<header>
-  <div class="brand">VFX Studio <span class="tag">read-only viewer</span></div>
-  <div id="conn" class="conn off">connecting</div>
-  <div id="metrics" class="metrics"></div>
+<header class="top">
+  <div class="brand"><span class="logo" aria-hidden="true"></span>VFX Studio</div>
+  <label class="shotpick">Shot <select id="shot" aria-label="Shot"></select></label>
+  <div class="mode" role="group" aria-label="Display mode">
+    <button id="mode-filmmaker" data-mode="filmmaker">Filmmaker</button>
+    <button id="mode-vfx" data-mode="vfx-artist">VFX Artist</button>
+  </div>
+  <div class="spacer"></div>
+  <button id="bell" class="bell" aria-label="Alerts"><span class="bell-icon" aria-hidden="true">●</span><span id="bell-count">0</span></button>
+  <div id="conn" class="pill off" role="status">Connecting</div>
 </header>
-<div class="layout">
-  <nav>
-    <h2>Shots</h2>
-    <ul id="shots"></ul>
-    <p id="root" class="muted small"></p>
+<div class="app">
+  <nav class="side" aria-label="Sections">
+    <button data-view="overview" class="on">Overview</button>
+    <button data-view="activity">Activity</button>
+    <button data-view="images">Images</button>
+    <button data-view="machine">Machine</button>
+    <button data-view="changes">Outside changes</button>
+    <button data-view="alerts">Alerts</button>
+    <div class="side-foot" id="foot"></div>
   </nav>
-  <main>
-    <div class="tabs" role="tablist">
-      <button data-tab="activity" class="on">Activity</button>
-      <button data-tab="unrecorded">Unrecorded changes</button>
-      <button data-tab="images">Review images</button>
-      <button data-tab="machines">Machines</button>
-    </div>
-    <section id="tab-activity" class="tab on">
-      <p class="muted small">Engine operations and notes, newest first. Click a row for details.</p>
-      <table id="ops"><thead><tr><th>Time</th><th>What</th><th>Status</th><th>Took</th><th>Where</th></tr></thead><tbody></tbody></table>
-      <div id="detail" class="detail hidden"></div>
-    </section>
-    <section id="tab-unrecorded" class="tab">
-      <p class="muted small">Files in this shot that changed after logging began, with no engine event that explains them (for example edits made directly in Blender or by hand). Rechecked every time you open this tab.</p>
-      <div id="unrecorded"></div>
-    </section>
-    <section id="tab-images" class="tab">
-      <p class="muted small">Newest images from the shot's _review folder and images named by engine events.</p>
-      <div id="images" class="grid"></div>
-    </section>
-    <section id="tab-machines" class="tab">
-      <p class="muted small">Latest preflight report from each machine. The Cowork VM and the Mac are checked separately.</p>
-      <div id="machines" class="machines"></div>
-    </section>
+  <main id="main">
+    <section id="view-overview" class="view on"></section>
+    <section id="view-activity" class="view"></section>
+    <section id="view-images" class="view"></section>
+    <section id="view-machine" class="view"></section>
+    <section id="view-changes" class="view"></section>
+    <section id="view-alerts" class="view"></section>
   </main>
+  <aside id="drawer" class="drawer hidden" aria-label="Details">
+    <button id="drawer-close" class="close" aria-label="Close details">×</button>
+    <div id="drawer-body"></div>
+  </aside>
 </div>
 <script src="/app.js"></script>
 </body>

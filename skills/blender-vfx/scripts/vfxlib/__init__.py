@@ -3,4 +3,4 @@
 numpy and OpenCV are optional and only needed for footage analysis,
 pixel checks and tracking maths. Blender-side scripts import trackmath.
 """
-__version__ = "2.1.0"
+__version__ = "2.2.0"
