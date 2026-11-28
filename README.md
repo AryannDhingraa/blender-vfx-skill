@@ -79,6 +79,8 @@ flowchart LR
 | `vfx.py run` / `resume` / `job` | Headless Blender with timeout and log; checks every frame; resume re-renders only missing or broken frames | Working |
 | `vfx.py verify` | Missing, empty, truncated or corrupt frames (PNG, JPEG, EXR, TIFF), black frames, flicker, video frame counts | Working |
 | `vfx.py assets` | Searches free CC0 models, textures and HDRIs, ranks them for your machine, makes a thumbnail sheet, downloads only after you approve | Working |
+| `vfx.py preflight` | Startup check per machine: engine version and commit, Blender, packages, settings, PASS/FAIL/UNKNOWN per item, report saved per machine | Experimental |
+| `vfx.py event` / `snapshot` / `studio` | Per-shot event log, script snapshots, and a local read-only viewer (127.0.0.1, token login) that shows operations live, interrupted runs and changes made outside the engine | Experimental |
 | `vfx.py tidy` / `doctor` / `package` | Clutter and duplicate report, install check, zip for upload | Working |
 | `build_proxy.py` | Fits walls and floors to tracked points and bakes the plate projection onto them | Working |
 | `destruction.py` | Breaks only the area around an impact, with rigid bodies that wake on the hit | Working |

@@ -11,8 +11,12 @@ HASH_FULL_LIMIT = 8 * 1024 * 1024  # files up to 8 MB are hashed whole
 
 
 def out(obj, code=0):
+    out.last = obj  # read by the event logger in vfx.py
     print(json.dumps(obj, separators=(",", ":"), default=str))
     return code
+
+
+out.last = None
 
 
 def compress_ranges(nums):

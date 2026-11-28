@@ -9,7 +9,7 @@ A working method for realistic shots in Blender. Blender does tracking, 3D, simu
 
 ## Rule zero: ask, then build
 
-1. Run `python3 scripts/vfx.py status SHOT_DIR` (state, stale results, unfinished jobs). Read `lessons.md` if it exists.
+1. Run `python3 scripts/vfx.py preflight --root PROJECTS --shot SHOT_DIR --human`. Engine FAIL: stop and say so; never pretend it ran. Then `vfx.py status SHOT_DIR` and `lessons.md` if it exists.
 2. No `vfx-profile.md`: run `references/00-setup-interview.md` once and save it. Never re-ask; read the profile.
 3. New shot: `references/01-shot-brief.md`, then `vfx.py state init SHOT_DIR`.
 4. Show the brief, plan (stages, tools, rough time) and checks. Wait for a yes.
@@ -62,6 +62,7 @@ Read one stage file, do the work, move on.
 - `analyse PLATE --state SHOT_DIR`: camera move (locked, rotation, parallax or unknown with reasons), blur, exposure, solve type. Never guess a move it calls unknown.
 - `run JOB --state SHOT_DIR --blend F --frames 1-100 --pattern OUT/####.exr`, `resume JOB`, `job JOB`: headless Blender with timeout, log and verified frames; resume re-renders only missing, corrupt or stale frames.
 - `verify TARGET`: frames or video; missing, truncated, black, flicker.
+- `event note SHOT "what and why"` before each step; `snapshot SHOT SCRIPT` before running a script through MCP. `studio --root PROJECTS` is the user's live read-only viewer: `references/19-studio.md`.
 - `assets search|download`, `tidy PROJECT`, `doctor`, `package OUT.zip`.
 
 Blender scripts (`blender -b file.blend -P script.py -- args`, or exec through MCP): `probe_scene.py` (compact scene JSON), `setup_shot.py` (folders, camera, colour, render defaults, versioned save), `render_doctor.py` (what makes a render slow), `contact_sheet.py` (cheap preview sheet), `track_report.py` (solve trust: per-frame error, coverage over time, holdout tracks, self-check), `build_proxy.py` (walls and floors from tracked points with plate projection), `destruction.py` (partial fracture at the impact only), `import_asset.py`, `procedural_asset.py` (fallback assets with preview).
