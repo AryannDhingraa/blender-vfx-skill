@@ -13,7 +13,7 @@ Steps:
 
 Checks: projection does not smear as pieces turn; inside surfaces look like the material; background revealed behind matches the clean plate.
 
-Building hit by something huge (shot alien_crash):
+Building hit by something huge:
 - Rebuild only the hit floors, place them on the solved facade, UV-project the plate from the solved camera and shade with emission only: an invisible copy of the real building until pieces move, and the hole stays after the action.
 - Fracture with random-normal cuts of mixed sizes (1-6 m) and fill the caps with a damaged-concrete material; release pieces as a wave from the impact; add 2-3k small instanced chunks that land and stay, plus static rubble for later shots.
 - Smoke and dust volumes must never contain the camera, or the whole frame fogs.
