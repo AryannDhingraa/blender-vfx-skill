@@ -299,8 +299,8 @@ def snapshot(shot, path, label=None):
             fields["detail"] = "snapshot store full, hash only"
         else:
             tmp = dest + f".{os.getpid()}.tmp"
-            with open(tmp, "w", encoding="utf-8") as f:
-                f.write(text)
+            with open(tmp, "wb") as f:  # exact bytes: no newline translation on Windows
+                f.write(data)
             os.replace(tmp, dest)
             fields["stored"] = True
     evs, _, _ = read(shot, include_old=True)
@@ -323,7 +323,7 @@ def load_snapshot(shot, sha):
     if not isinstance(sha, str) or len(sha) != 16 or any(c not in "0123456789abcdef" for c in sha):
         return None
     try:
-        with open(os.path.join(paths(shot)["snaps"], sha + ".txt"), encoding="utf-8") as f:
+        with open(os.path.join(paths(shot)["snaps"], sha + ".txt"), encoding="utf-8", newline="") as f:
             return f.read(SNAP_MAX + 1)
     except OSError:
         return None

@@ -98,6 +98,7 @@ def test_snapshot_dedup_and_diff(tmp_path):
     e1b = ev.snapshot(shot, str(script), "comp")
     assert e1["sha"] == e1b["sha"] and e1b["added"] == 0 and len(os.listdir(ev.paths(shot)["snaps"])) == 1
     script.write_text("a = 1\nb = 3\nc = 4\n")
+    assert ev.load_snapshot(shot, e1["sha"]) == script.read_bytes().decode().replace("b = 3\r\nc = 4", "b = 2").replace("b = 3\nc = 4", "b = 2")
     e2 = ev.snapshot(shot, str(script), "comp")
     assert (e2["added"], e2["removed"]) == (2, 1)
     d = ev.diff(shot, e1["sha"], e2["sha"])
