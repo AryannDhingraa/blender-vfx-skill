@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.1.0 (2026-11-28)
+- `vfx.py preflight`: PASS, FAIL, UNKNOWN or NOT_APPLICABLE per item (engine version and commit, machine, Blender, packages, ffmpeg, state write, shot log, personal overrides, settings, hardware). Saves one report per machine, so a Linux VM and the Mac are checked separately. Fails loudly when the engine is missing or settings are invalid; learning and research default to off.
+- Event log per shot (`state/events.jsonl`): engine commands that change a shot write a start and an end event themselves; lines are CRC-checked and capped at 4 KB; one rotated generation is kept. A start with no end is shown as interrupted once its process is gone (PID reuse checked), or after its deadline on another machine. `vfx.py event note|show|reconcile|scan`.
+- `vfx.py snapshot`: stores small text scripts once by hash and logs +/- lines against the previous version; diffs are computed when viewed.
+- `vfx.py studio`: local read-only viewer, standard library only. 127.0.0.1, Host check, one-time token swapped for an HttpOnly cookie, GET only, strict path checks (no symlinks, hidden names, traversal or secret-looking names; images and snapshots only). Live activity, unrecorded changes, review images, machine reports. `--selftest` measures idle CPU, update delay and the security checks on the machine it runs on.
+- `doctor` shares its checks with preflight.
+
 ## 2.0.1 (2026-11-28)
 - Two-camera split instead of smoothing, COLMAP small-baseline settings, strong-point anchors, point-seeded window matte; plate-projection copy for destroyed buildings, mixed-size capped fracture, volumes outside the camera; Blender 5.1 EXR pass and retargeting gotchas.
 - Lessons from a handheld window shot: full solve when the camera travels even 1 m, window and room masks, forward-backward tracking at full res; Clip Editor frame gotcha; detached jobs instead of shell background jobs.
