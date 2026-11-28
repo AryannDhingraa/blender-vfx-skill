@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VFX Studio</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><span class="logo" aria-hidden="true"></span>VFX Studio</div>
+  <label class="shotpick">Shot <select id="shot" aria-label="Shot"></select></label>
+  <div class="mode" role="group" aria-label="Display mode">
+    <button id="mode-filmmaker" data-mode="filmmaker">Filmmaker</button>
+    <button id="mode-vfx" data-mode="vfx-artist">VFX Artist</button>
+  </div>
+  <div class="spacer"></div>
+  <button id="bell" class="bell" aria-label="Alerts"><span class="bell-icon" aria-hidden="true">●</span><span id="bell-count">0</span></button>
+  <div id="conn" class="pill off" role="status">Connecting</div>
+</header>
+<div class="app">
+  <nav class="side" aria-label="Sections">
+    <button data-view="overview" class="on">Overview</button>
+    <button data-view="activity">Activity</button>
+    <button data-view="images">Images</button>
+    <button data-view="machine">Machine</button>
+    <button data-view="changes">Outside changes</button>
+    <button data-view="alerts">Alerts</button>
+    <div class="side-foot" id="foot"></div>
+  </nav>
+  <main id="main">
+    <section id="view-overview" class="view on"></section>
+    <section id="view-activity" class="view"></section>
+    <section id="view-images" class="view"></section>
+    <section id="view-machine" class="view"></section>
+    <section id="view-changes" class="view"></section>
+    <section id="view-alerts" class="view"></section>
+  </main>
+  <aside id="drawer" class="drawer hidden" aria-label="Details">
+    <button id="drawer-close" class="close" aria-label="Close details">×</button>
+    <div id="drawer-body"></div>
+  </aside>
+</div>
+<script src="/app.js"></script>
+</body>
+</html>
